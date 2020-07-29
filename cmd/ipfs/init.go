@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	algorithmDefault    = options.RSAKey
+	algorithmDefault    = options.Ed25519Key
 	algorithmOptionName = "algorithm"
 	bitsOptionName      = "bits"
 	emptyRepoOptionName = "empty-repo"
