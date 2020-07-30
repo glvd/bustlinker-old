@@ -10,7 +10,7 @@ import (
 	"github.com/glvd/starship/repo/fsrepo"
 
 	humanize "github.com/dustin/go-humanize"
-	badgerds "github.com/ipfs/go-ds-badger"
+	badgerds "github.com/ipfs/go-ds-badger2"
 )
 
 // Plugins is exported list of plugins that will be loaded
