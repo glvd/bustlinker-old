@@ -58,6 +58,8 @@ func createTempRepo(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	cfg.Datastore.Spec = badgerSpec()
+
 	// Create the repo with the config
 	err = fsrepo.Init(repoPath, cfg)
 	if err != nil {
@@ -65,6 +67,19 @@ func createTempRepo(ctx context.Context) (string, error) {
 	}
 
 	return repoPath, nil
+}
+
+func badgerSpec() map[string]interface{} {
+	return map[string]interface{}{
+		"type":   "measure",
+		"prefix": "badger.datastore",
+		"child": map[string]interface{}{
+			"type":       "badgerds",
+			"path":       "badgerds",
+			"syncWrites": false,
+			"truncate":   true,
+		},
+	}
 }
 
 /// ------ Spawning the node
@@ -122,7 +137,7 @@ func spawnEphemeral(ctx context.Context) (icore.CoreAPI, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temp repo: %s", err)
 	}
-
+	fmt.Println("create root path:", repoPath)
 	// Spawning an ephemeral IPFS node
 	return createNode(ctx, repoPath)
 }
@@ -229,9 +244,13 @@ func main() {
 
 	fmt.Println("\n-- Adding and getting back files & directories --")
 
-	inputBasePath := "./example-folder/"
-	inputPathFile := inputBasePath + "ipfs.paper.draft3.pdf"
-	inputPathDirectory := inputBasePath + "test-dir"
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	inputBasePath := filepath.Join(wd, "docs", "examples", "go-ipfs-as-a-library", "example-folder")
+	inputPathFile := filepath.Join(inputBasePath, "ipfs.paper.draft3.pdf")
+	inputPathDirectory := filepath.Join(inputBasePath, "test-dir")
 
 	someFile, err := getUnixfsNode(inputPathFile)
 	if err != nil {
@@ -259,9 +278,9 @@ func main() {
 
 	/// --- Part III: Getting the file and directory you added back
 
-	outputBasePath := "./example-folder/"
-	outputPathFile := outputBasePath + strings.Split(cidFile.String(), "/")[2]
-	outputPathDirectory := outputBasePath + strings.Split(cidDirectory.String(), "/")[2]
+	outputBasePath := filepath.Join(wd, "docs", "examples", "go-ipfs-as-a-library", "example-folder")
+	outputPathFile := filepath.Join(outputBasePath, strings.Split(cidFile.String(), "/")[2])
+	outputPathDirectory := filepath.Join(outputBasePath, strings.Split(cidDirectory.String(), "/")[2])
 
 	rootNodeFile, err := ipfs.Unixfs().Get(ctx, cidFile)
 	if err != nil {
@@ -318,7 +337,7 @@ func main() {
 	exampleCIDStr := "QmUaoioqU7bxezBQZkUcgcSyokatMY71sxsALxQmRRrHrj"
 
 	fmt.Printf("Fetching a file from the network with CID %s\n", exampleCIDStr)
-	outputPath := outputBasePath + exampleCIDStr
+	outputPath := filepath.Join(outputBasePath, exampleCIDStr)
 	testCID := icorepath.New(exampleCIDStr)
 
 	rootNode, err := ipfs.Unixfs().Get(ctx, testCID)
