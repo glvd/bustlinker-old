@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	commands "github.com/ipfs/go-ipfs/commands"
-	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
-	repo "github.com/ipfs/go-ipfs/repo"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
+	commands "github.com/glvd/starship/commands"
+	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	repo "github.com/glvd/starship/repo"
+	fsrepo "github.com/glvd/starship/repo/fsrepo"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	config "github.com/ipfs/go-ipfs-config"

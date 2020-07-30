@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ipfs/go-ipfs/core/bootstrap"
-	"github.com/ipfs/go-ipfs/core/node"
+	"github.com/glvd/starship/core/bootstrap"
+	"github.com/glvd/starship/core/node"
 
 	"github.com/ipfs/go-metrics-interface"
 	"go.uber.org/fx"

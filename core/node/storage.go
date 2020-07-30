@@ -6,11 +6,11 @@ import (
 	config "github.com/ipfs/go-ipfs-config"
 	"go.uber.org/fx"
 
+	"github.com/glvd/starship/core/node/helpers"
+	"github.com/glvd/starship/repo"
+	"github.com/glvd/starship/thirdparty/cidv0v1"
+	"github.com/glvd/starship/thirdparty/verifbs"
 	"github.com/ipfs/go-filestore"
-	"github.com/ipfs/go-ipfs/core/node/helpers"
-	"github.com/ipfs/go-ipfs/repo"
-	"github.com/ipfs/go-ipfs/thirdparty/cidv0v1"
-	"github.com/ipfs/go-ipfs/thirdparty/verifbs"
 )
 
 // RepoConfig loads configuration from the repo

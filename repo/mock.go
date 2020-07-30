@@ -3,8 +3,8 @@ package repo
 import (
 	"errors"
 
+	keystore "github.com/glvd/starship/keystore"
 	filestore "github.com/ipfs/go-filestore"
-	keystore "github.com/ipfs/go-ipfs/keystore"
 
 	config "github.com/ipfs/go-ipfs-config"
 	ma "github.com/multiformats/go-multiaddr"

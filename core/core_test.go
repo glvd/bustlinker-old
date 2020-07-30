@@ -5,7 +5,7 @@ import (
 
 	context "context"
 
-	"github.com/ipfs/go-ipfs/repo"
+	"github.com/glvd/starship/repo"
 
 	datastore "github.com/ipfs/go-datastore"
 	syncds "github.com/ipfs/go-datastore/sync"

@@ -6,9 +6,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/gc"
-	"github.com/ipfs/go-ipfs/repo"
+	"github.com/glvd/starship/core"
+	"github.com/glvd/starship/gc"
+	"github.com/glvd/starship/repo"
 
 	"github.com/dustin/go-humanize"
 	"github.com/ipfs/go-cid"

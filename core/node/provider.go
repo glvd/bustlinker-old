@@ -13,8 +13,8 @@ import (
 	"github.com/libp2p/go-libp2p-core/routing"
 	"go.uber.org/fx"
 
-	"github.com/ipfs/go-ipfs/core/node/helpers"
-	"github.com/ipfs/go-ipfs/repo"
+	"github.com/glvd/starship/core/node/helpers"
+	"github.com/glvd/starship/repo"
 )
 
 const kReprovideFrequency = time.Hour * 12

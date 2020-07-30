@@ -5,10 +5,10 @@ import (
 	"io"
 	"os"
 
+	core "github.com/glvd/starship/core"
+	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	e "github.com/glvd/starship/core/commands/e"
 	filestore "github.com/ipfs/go-filestore"
-	core "github.com/ipfs/go-ipfs/core"
-	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
 
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-ipfs-cmds"
