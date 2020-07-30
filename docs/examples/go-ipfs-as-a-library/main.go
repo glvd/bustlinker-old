@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
+	libp2p "github.com/glvd/starship/core/node/libp2p"
 	config "github.com/ipfs/go-ipfs-config"
 	files "github.com/ipfs/go-ipfs-files"
-	libp2p "github.com/glvd/starship/core/node/libp2p"
 	icore "github.com/ipfs/interface-go-ipfs-core"
 	icorepath "github.com/ipfs/interface-go-ipfs-core/path"
 	peerstore "github.com/libp2p/go-libp2p-peerstore"
