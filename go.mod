@@ -2,7 +2,6 @@ module github.com/glvd/bustlinker
 
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc
-	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/bren2010/proquint v0.0.0-20160323162903-38337c27106d
 	github.com/coreos/go-systemd/v22 v22.0.0
@@ -74,7 +73,7 @@ require (
 	github.com/libp2p/go-libp2p-peerstore v0.2.6
 	github.com/libp2p/go-libp2p-pubsub v0.3.1
 	github.com/libp2p/go-libp2p-pubsub-router v0.3.0
-	github.com/libp2p/go-libp2p-quic-transport v0.6.0
+	github.com/libp2p/go-libp2p-quic-transport v0.7.0
 	github.com/libp2p/go-libp2p-record v0.1.3
 	github.com/libp2p/go-libp2p-routing-helpers v0.2.3
 	github.com/libp2p/go-libp2p-secio v0.2.2
