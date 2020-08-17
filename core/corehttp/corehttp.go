@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"time"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 	logging "github.com/ipfs/go-log"
 	"github.com/jbenet/goprocess"
 	periodicproc "github.com/jbenet/goprocess/periodic"

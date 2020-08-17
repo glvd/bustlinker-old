@@ -10,9 +10,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	core "github.com/glvd/starship/core"
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
-	p2p "github.com/glvd/starship/p2p"
+	core "github.com/glvd/bustlinker/core"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
+	p2p "github.com/glvd/bustlinker/p2p"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	peer "github.com/libp2p/go-libp2p-core/peer"

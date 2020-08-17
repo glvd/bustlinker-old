@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 
-	keystore "github.com/glvd/starship/keystore"
+	keystore "github.com/glvd/bustlinker/keystore"
 	filestore "github.com/ipfs/go-filestore"
 
 	ds "github.com/ipfs/go-datastore"

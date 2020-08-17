@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	version "github.com/glvd/starship"
-	oldcmds "github.com/glvd/starship/commands"
-	"github.com/glvd/starship/core"
-	corecommands "github.com/glvd/starship/core/commands"
+	version "github.com/glvd/bustlinker"
+	oldcmds "github.com/glvd/bustlinker/commands"
+	"github.com/glvd/bustlinker/core"
+	corecommands "github.com/glvd/bustlinker/core/commands"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	cmdsHttp "github.com/ipfs/go-ipfs-cmds/http"

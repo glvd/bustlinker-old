@@ -15,8 +15,8 @@ import (
 
 	"bazil.org/fuse"
 
-	core "github.com/glvd/starship/core"
-	coreapi "github.com/glvd/starship/core/coreapi"
+	core "github.com/glvd/bustlinker/core"
+	coreapi "github.com/glvd/bustlinker/core/coreapi"
 
 	fstest "bazil.org/fuse/fs/fstestutil"
 	racedet "github.com/ipfs/go-detect-race"

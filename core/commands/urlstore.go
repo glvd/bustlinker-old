@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/url"
 
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 	filestore "github.com/ipfs/go-filestore"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"

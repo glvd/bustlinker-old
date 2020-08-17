@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strconv"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 )
 
 // MutexFractionOption allows to set runtime.SetMutexProfileFraction via HTTP

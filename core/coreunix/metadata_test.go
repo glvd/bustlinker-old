@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 	bserv "github.com/ipfs/go-blockservice"
 	merkledag "github.com/ipfs/go-merkledag"
 	ft "github.com/ipfs/go-unixfs"

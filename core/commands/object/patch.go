@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/glvd/starship/core/commands/cmdenv"
+	"github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	"github.com/ipfs/go-ipfs-cmds"
 	"github.com/ipfs/interface-go-ipfs-core/options"

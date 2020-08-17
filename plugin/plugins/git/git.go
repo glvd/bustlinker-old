@@ -6,8 +6,8 @@ import (
 	"io"
 	"math"
 
-	"github.com/glvd/starship/core/coredag"
-	"github.com/glvd/starship/plugin"
+	"github.com/glvd/bustlinker/core/coredag"
+	"github.com/glvd/bustlinker/plugin"
 
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-ipld-format"

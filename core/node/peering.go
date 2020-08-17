@@ -3,7 +3,7 @@ package node
 import (
 	"context"
 
-	"github.com/glvd/starship/peering"
+	"github.com/glvd/bustlinker/peering"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"go.uber.org/fx"

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"plugin"
 
-	iplugin "github.com/glvd/starship/plugin"
+	iplugin "github.com/glvd/bustlinker/plugin"
 )
 
 func init() {

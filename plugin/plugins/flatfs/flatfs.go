@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/glvd/starship/plugin"
-	"github.com/glvd/starship/repo"
-	"github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/plugin"
+	"github.com/glvd/bustlinker/repo"
+	"github.com/glvd/bustlinker/repo/fsrepo"
 
 	flatfs "github.com/ipfs/go-ds-flatfs"
 )

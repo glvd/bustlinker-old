@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/repo"
 
 	ds "github.com/ipfs/go-datastore"
 	"github.com/ipfs/go-datastore/mount"

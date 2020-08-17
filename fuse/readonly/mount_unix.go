@@ -4,8 +4,8 @@
 package readonly
 
 import (
-	core "github.com/glvd/starship/core"
-	mount "github.com/glvd/starship/fuse/mount"
+	core "github.com/glvd/bustlinker/core"
+	mount "github.com/glvd/bustlinker/fuse/mount"
 )
 
 // Mount mounts IPFS at a given location, and returns a mount.Mount instance.

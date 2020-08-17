@@ -5,9 +5,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/core/mock"
-	"github.com/glvd/starship/core/node/libp2p"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/mock"
+	"github.com/glvd/bustlinker/core/node/libp2p"
 	"github.com/ipfs/go-block-format"
 	"github.com/ipfs/go-cid"
 	mocknet "github.com/libp2p/go-libp2p/p2p/net/mock"

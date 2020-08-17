@@ -4,9 +4,9 @@
 package ipns
 
 import (
-	core "github.com/glvd/starship/core"
-	coreapi "github.com/glvd/starship/core/coreapi"
-	mount "github.com/glvd/starship/fuse/mount"
+	core "github.com/glvd/bustlinker/core"
+	coreapi "github.com/glvd/bustlinker/core/coreapi"
+	mount "github.com/glvd/bustlinker/fuse/mount"
 )
 
 // Mount mounts ipns at a given location, and returns a mount.Mount instance.

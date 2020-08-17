@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/glvd/starship/plugin"
+	"github.com/glvd/bustlinker/plugin"
 )
 
 var Plugins = []plugin.Plugin{

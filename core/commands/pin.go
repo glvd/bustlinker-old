@@ -19,9 +19,9 @@ import (
 	options "github.com/ipfs/interface-go-ipfs-core/options"
 	"github.com/ipfs/interface-go-ipfs-core/path"
 
-	core "github.com/glvd/starship/core"
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
-	e "github.com/glvd/starship/core/commands/e"
+	core "github.com/glvd/bustlinker/core"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
+	e "github.com/glvd/bustlinker/core/commands/e"
 )
 
 var PinCmd = &cmds.Command{

@@ -7,7 +7,7 @@
 # ...and where available, a copy of the `ipfs` binary on the PATH.
 #
 # Please run this script and attach the profile archive it creates
-# when reporting bugs at https://github.com/glvd/starship/issues
+# when reporting bugs at https://github.com/glvd/bustlinker/issues
 
 set -euo pipefail
 IFS=$'\n\t'

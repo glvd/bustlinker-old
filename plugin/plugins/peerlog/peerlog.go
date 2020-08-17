@@ -5,8 +5,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	core "github.com/glvd/starship/core"
-	plugin "github.com/glvd/starship/plugin"
+	core "github.com/glvd/bustlinker/core"
+	plugin "github.com/glvd/bustlinker/plugin"
 	logging "github.com/ipfs/go-log"
 	event "github.com/libp2p/go-libp2p-core/event"
 	network "github.com/libp2p/go-libp2p-core/network"

@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	oldcmds "github.com/glvd/starship/commands"
+	oldcmds "github.com/glvd/bustlinker/commands"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 )

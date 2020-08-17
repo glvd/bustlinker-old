@@ -14,7 +14,7 @@ import (
 	caopts "github.com/ipfs/interface-go-ipfs-core/options"
 	path "github.com/ipfs/interface-go-ipfs-core/path"
 
-	util "github.com/glvd/starship/blocks/blockstoreutil"
+	util "github.com/glvd/bustlinker/blocks/blockstoreutil"
 )
 
 type BlockAPI CoreAPI

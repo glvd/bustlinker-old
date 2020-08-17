@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"text/tabwriter"
 
-	"github.com/glvd/starship/core/commands/cmdenv"
+	"github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/ipfs/go-cid"

@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/glvd/starship/core"
-	mock "github.com/glvd/starship/core/mock"
-	libp2p2 "github.com/glvd/starship/core/node/libp2p"
+	"github.com/glvd/bustlinker/core"
+	mock "github.com/glvd/bustlinker/core/mock"
+	libp2p2 "github.com/glvd/bustlinker/core/node/libp2p"
 	"github.com/ipfs/go-cid"
 
 	corenet "github.com/libp2p/go-libp2p-core/network"

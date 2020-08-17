@@ -10,9 +10,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/glvd/starship/core/commands/cmdenv"
-	"github.com/glvd/starship/repo"
-	"github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/core/commands/cmdenv"
+	"github.com/glvd/bustlinker/repo"
+	"github.com/glvd/bustlinker/repo/fsrepo"
 
 	"github.com/elgris/jsondiff"
 	"github.com/ipfs/go-ipfs-cmds"

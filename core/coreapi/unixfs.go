@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/glvd/starship/core"
+	"github.com/glvd/bustlinker/core"
 
-	"github.com/glvd/starship/core/coreunix"
+	"github.com/glvd/bustlinker/core/coreunix"
 
 	blockservice "github.com/ipfs/go-blockservice"
 	cid "github.com/ipfs/go-cid"

@@ -10,7 +10,7 @@ import (
 	"os"
 	"syscall"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 	mdag "github.com/ipfs/go-merkledag"
 	path "github.com/ipfs/go-path"
 	ft "github.com/ipfs/go-unixfs"

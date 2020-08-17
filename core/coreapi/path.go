@@ -5,7 +5,7 @@ import (
 	"fmt"
 	gopath "path"
 
-	"github.com/glvd/starship/namesys/resolve"
+	"github.com/glvd/bustlinker/namesys/resolve"
 
 	"github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"

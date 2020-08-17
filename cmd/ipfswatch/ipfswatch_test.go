@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/glvd/starship/thirdparty/assert"
+	"github.com/glvd/bustlinker/thirdparty/assert"
 )
 
 func TestIsHidden(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/glvd/starship/thirdparty/unit"
+	"github.com/glvd/bustlinker/thirdparty/unit"
 
 	config "github.com/ipfs/go-ipfs-config"
 	random "github.com/jbenet/go-random"

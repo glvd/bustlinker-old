@@ -11,9 +11,9 @@ import (
 	"github.com/libp2p/go-libp2p-core/routing"
 	"github.com/libp2p/go-libp2p-record"
 
-	"github.com/glvd/starship/namesys"
-	"github.com/glvd/starship/namesys/republisher"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/namesys"
+	"github.com/glvd/bustlinker/namesys/republisher"
+	"github.com/glvd/bustlinker/repo"
 )
 
 const DefaultIpnsCacheSize = 128

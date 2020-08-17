@@ -4,7 +4,7 @@ import (
 	"net"
 	"net/http"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 )
 
 func RedirectOption(path string, redirect string) ServeOption {

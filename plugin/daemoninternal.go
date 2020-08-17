@@ -1,6 +1,6 @@
 package plugin
 
-import "github.com/glvd/starship/core"
+import "github.com/glvd/bustlinker/core"
 
 // PluginDaemonInternal is an interface for daemon plugins. These plugins will be run on
 // the daemon and will be given a direct access to the IpfsNode.

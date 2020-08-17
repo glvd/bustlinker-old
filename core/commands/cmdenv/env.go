@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/glvd/starship/commands"
-	"github.com/glvd/starship/core"
+	"github.com/glvd/bustlinker/commands"
+	"github.com/glvd/bustlinker/core"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	config "github.com/ipfs/go-ipfs-config"

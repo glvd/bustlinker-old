@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/repo"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"

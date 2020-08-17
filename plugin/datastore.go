@@ -1,7 +1,7 @@
 package plugin
 
 import (
-	"github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/repo/fsrepo"
 )
 
 // PluginDatastore is an interface that can be implemented to add handlers for

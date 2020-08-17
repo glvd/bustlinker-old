@@ -6,8 +6,8 @@ import (
 
 	context "context"
 
-	"github.com/glvd/starship/core"
-	fsrepo "github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/core"
+	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 
 	humanize "github.com/dustin/go-humanize"
 )

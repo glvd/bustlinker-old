@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 
 	protocol "github.com/libp2p/go-libp2p-core/protocol"
 	p2phttp "github.com/libp2p/go-libp2p-http"

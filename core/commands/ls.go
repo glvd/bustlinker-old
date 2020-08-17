@@ -7,7 +7,7 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	unixfs "github.com/ipfs/go-unixfs"

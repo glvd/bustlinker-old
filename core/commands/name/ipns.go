@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
-	namesys "github.com/glvd/starship/namesys"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
+	namesys "github.com/glvd/bustlinker/namesys"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	logging "github.com/ipfs/go-log"

@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	bootstrap2 "github.com/glvd/starship/core/bootstrap"
-	"github.com/glvd/starship/core/coreapi"
-	mock "github.com/glvd/starship/core/mock"
-	"github.com/glvd/starship/thirdparty/unit"
+	bootstrap2 "github.com/glvd/bustlinker/core/bootstrap"
+	"github.com/glvd/bustlinker/core/coreapi"
+	mock "github.com/glvd/bustlinker/core/mock"
+	"github.com/glvd/bustlinker/thirdparty/unit"
 
 	files "github.com/ipfs/go-ipfs-files"
 	peer "github.com/libp2p/go-libp2p-core/peer"

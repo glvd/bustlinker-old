@@ -3,8 +3,8 @@ package ipns
 import (
 	"context"
 
-	"github.com/glvd/starship/core"
-	nsys "github.com/glvd/starship/namesys"
+	"github.com/glvd/bustlinker/core"
+	nsys "github.com/glvd/bustlinker/namesys"
 	path "github.com/ipfs/go-path"
 	ft "github.com/ipfs/go-unixfs"
 	ci "github.com/libp2p/go-libp2p-core/crypto"

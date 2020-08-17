@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	version "github.com/glvd/starship"
+	version "github.com/glvd/bustlinker"
 )
 
 type testcasecheckversion struct {

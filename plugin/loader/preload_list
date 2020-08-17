@@ -3,8 +3,8 @@
 #
 # name             go-path                  number of the sub-plugin or *
 
-ipldgit github.com/glvd/starship/plugin/plugins/git *
+ipldgit github.com/glvd/bustlinker/plugin/plugins/git *
 
-badgerds github.com/glvd/starship/plugin/plugins/badgerds *
-flatfs github.com/glvd/starship/plugin/plugins/flatfs *
-levelds github.com/glvd/starship/plugin/plugins/levelds *
+badgerds github.com/glvd/bustlinker/plugin/plugins/badgerds *
+flatfs github.com/glvd/bustlinker/plugin/plugins/flatfs *
+levelds github.com/glvd/bustlinker/plugin/plugins/levelds *

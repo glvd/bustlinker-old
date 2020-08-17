@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/glvd/starship/thirdparty/assert"
+	"github.com/glvd/bustlinker/thirdparty/assert"
 )
 
 func testVersionFile(v string, t *testing.T) (rp RepoPath) {

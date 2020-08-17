@@ -9,7 +9,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/discovery"
 	"go.uber.org/fx"
 
-	"github.com/glvd/starship/core/node/helpers"
+	"github.com/glvd/bustlinker/core/node/helpers"
 )
 
 const discoveryConnTimeout = time.Second * 30

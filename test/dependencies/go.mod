@@ -1,4 +1,4 @@
-module github.com/glvd/starship/test/dependencies
+module github.com/glvd/bustlinker/test/dependencies
 
 go 1.13
 

@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 	lwriter "github.com/ipfs/go-log/writer"
 )
 

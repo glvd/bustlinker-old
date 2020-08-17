@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/glvd/starship/core/commands/cmdenv"
-	tar "github.com/glvd/starship/tar"
+	"github.com/glvd/bustlinker/core/commands/cmdenv"
+	tar "github.com/glvd/bustlinker/tar"
 
 	"github.com/ipfs/go-ipfs-cmds"
 	dag "github.com/ipfs/go-merkledag"

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/glvd/starship/core/commands/cmdenv"
-	"github.com/glvd/starship/core/coredag"
+	"github.com/glvd/bustlinker/core/commands/cmdenv"
+	"github.com/glvd/bustlinker/core/coredag"
 	iface "github.com/ipfs/interface-go-ipfs-core"
 
 	cid "github.com/ipfs/go-cid"

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	core "github.com/glvd/starship/core"
-	coreapi "github.com/glvd/starship/core/coreapi"
-	loader "github.com/glvd/starship/plugin/loader"
+	core "github.com/glvd/bustlinker/core"
+	coreapi "github.com/glvd/bustlinker/core/coreapi"
+	loader "github.com/glvd/bustlinker/plugin/loader"
 
 	"github.com/ipfs/go-ipfs-cmds"
 	config "github.com/ipfs/go-ipfs-config"

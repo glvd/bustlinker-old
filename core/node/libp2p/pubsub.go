@@ -6,7 +6,7 @@ import (
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"go.uber.org/fx"
 
-	"github.com/glvd/starship/core/node/helpers"
+	"github.com/glvd/bustlinker/core/node/helpers"
 )
 
 func FloodSub(pubsubOptions ...pubsub.Option) interface{} {

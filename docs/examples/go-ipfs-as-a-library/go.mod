@@ -1,9 +1,10 @@
-module github.com/glvd/starship/examples/go-ipfs-as-a-library
+module github.com/glvd/bustlinker/examples/go-ipfs-as-a-library
 
 go 1.14
 
 require (
-	github.com/glvd/starship v0.0.0-20200730035755-b22faa4309b0
+	github.com/dgraph-io/badger/v2 v2.0.3
+	github.com/glvd/bustlinker v0.0.0-20200730035755-b22faa4309b0
 	github.com/ipfs/go-ipfs-config v0.8.0
 	github.com/ipfs/go-ipfs-files v0.0.8
 	github.com/ipfs/interface-go-ipfs-core v0.3.0

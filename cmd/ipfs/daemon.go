@@ -4,6 +4,7 @@ import (
 	"errors"
 	_ "expvar"
 	"fmt"
+
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -12,31 +13,32 @@ import (
 	"sort"
 	"sync"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 
-	version "github.com/glvd/starship"
-	utilmain "github.com/glvd/starship/cmd/ipfs/util"
-	oldcmds "github.com/glvd/starship/commands"
-	"github.com/glvd/starship/core"
-	commands "github.com/glvd/starship/core/commands"
-	corehttp "github.com/glvd/starship/core/corehttp"
-	corerepo "github.com/glvd/starship/core/corerepo"
-	libp2p "github.com/glvd/starship/core/node/libp2p"
-	nodeMount "github.com/glvd/starship/fuse/node"
-	fsrepo "github.com/glvd/starship/repo/fsrepo"
-	migrate "github.com/glvd/starship/repo/fsrepo/migrations"
+	version "github.com/glvd/bustlinker"
+	utilmain "github.com/glvd/bustlinker/cmd/ipfs/util"
+	oldcmds "github.com/glvd/bustlinker/commands"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/commands"
+	"github.com/glvd/bustlinker/core/corehttp"
+	"github.com/glvd/bustlinker/core/corerepo"
+	"github.com/glvd/bustlinker/core/node/libp2p"
+	nodeMount "github.com/glvd/bustlinker/fuse/node"
+	"github.com/glvd/bustlinker/link"
+	"github.com/glvd/bustlinker/repo/fsrepo"
+	migrate "github.com/glvd/bustlinker/repo/fsrepo/migrations"
 	config "github.com/ipfs/go-ipfs-config"
 	cserial "github.com/ipfs/go-ipfs-config/serialize"
 	sockets "github.com/libp2p/go-socket-activation"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	mprome "github.com/ipfs/go-metrics-prometheus"
-	options "github.com/ipfs/interface-go-ipfs-core/options"
-	goprocess "github.com/jbenet/goprocess"
+	"github.com/ipfs/interface-go-ipfs-core/options"
+	"github.com/jbenet/goprocess"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr-net"
-	prometheus "github.com/prometheus/client_golang/prometheus"
-	promauto "github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 const (
@@ -416,6 +418,11 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		return err
 	}
 
+	lnkErrc, err := serveLink(req, node)
+	if err != nil {
+		return err
+	}
+
 	// Add ipfs version info to prometheus metrics
 	var ipfsInfoMetric = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "ipfs_info",
@@ -433,6 +440,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 
 	// The daemon is *finally* ready.
 	fmt.Printf("Daemon is ready\n")
+
 	notifyReady()
 
 	// Give the user some immediate feedback when they hit C-c
@@ -446,13 +454,25 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	// collect long-running errors and block for shutdown
 	// TODO(cryptix): our fuse currently doesn't follow this pattern for graceful shutdown
 	var errs error
-	for err := range merge(apiErrc, gwErrc, gcErrc) {
+	for err := range merge(apiErrc, gwErrc, gcErrc, lnkErrc) {
 		if err != nil {
 			errs = multierror.Append(errs, err)
 		}
 	}
 
 	return errs
+}
+
+func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
+	lnk, err := link.New(node)
+	if err != nil {
+		return nil, err
+	}
+	e := make(chan error)
+	go func(err chan<- error) {
+		err <- lnk.Start()
+	}(e)
+	return e, nil
 }
 
 // serveHTTPApi collects options, creates listener, prints status message and starts serving requests

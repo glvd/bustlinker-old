@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"sort"
 
-	version "github.com/glvd/starship"
-	core "github.com/glvd/starship/core"
-	coreapi "github.com/glvd/starship/core/coreapi"
+	version "github.com/glvd/bustlinker"
+	core "github.com/glvd/bustlinker/core"
+	coreapi "github.com/glvd/bustlinker/core/coreapi"
 
 	options "github.com/ipfs/interface-go-ipfs-core/options"
 	id "github.com/libp2p/go-libp2p/p2p/protocol/identify"

@@ -3,7 +3,7 @@ package integrationtest
 import (
 	"testing"
 
-	"github.com/glvd/starship/thirdparty/unit"
+	"github.com/glvd/bustlinker/thirdparty/unit"
 	testutil "github.com/libp2p/go-libp2p-testing/net"
 )
 

@@ -10,11 +10,11 @@ import (
 	config "github.com/ipfs/go-ipfs-config"
 	cserialize "github.com/ipfs/go-ipfs-config/serialize"
 
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/core/coreapi"
-	coredag "github.com/glvd/starship/core/coredag"
-	plugin "github.com/glvd/starship/plugin"
-	fsrepo "github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/coreapi"
+	coredag "github.com/glvd/bustlinker/core/coredag"
+	plugin "github.com/glvd/bustlinker/plugin"
+	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 
 	ipld "github.com/ipfs/go-ipld-format"
 	logging "github.com/ipfs/go-log"

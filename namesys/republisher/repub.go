@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	keystore "github.com/glvd/starship/keystore"
-	namesys "github.com/glvd/starship/namesys"
+	keystore "github.com/glvd/bustlinker/keystore"
+	namesys "github.com/glvd/bustlinker/namesys"
 	path "github.com/ipfs/go-path"
 
 	proto "github.com/gogo/protobuf/proto"

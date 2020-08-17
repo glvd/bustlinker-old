@@ -41,15 +41,15 @@ import (
 	p2pbhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	ma "github.com/multiformats/go-multiaddr"
 
-	"github.com/glvd/starship/core/bootstrap"
-	"github.com/glvd/starship/core/node"
-	"github.com/glvd/starship/core/node/libp2p"
-	"github.com/glvd/starship/fuse/mount"
-	"github.com/glvd/starship/namesys"
-	ipnsrp "github.com/glvd/starship/namesys/republisher"
-	"github.com/glvd/starship/p2p"
-	"github.com/glvd/starship/peering"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/core/bootstrap"
+	"github.com/glvd/bustlinker/core/node"
+	"github.com/glvd/bustlinker/core/node/libp2p"
+	"github.com/glvd/bustlinker/fuse/mount"
+	"github.com/glvd/bustlinker/namesys"
+	ipnsrp "github.com/glvd/bustlinker/namesys/republisher"
+	"github.com/glvd/bustlinker/p2p"
+	"github.com/glvd/bustlinker/peering"
+	"github.com/glvd/bustlinker/repo"
 )
 
 var log = logging.Logger("core")

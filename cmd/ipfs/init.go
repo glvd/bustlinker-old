@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	assets "github.com/glvd/starship/assets"
-	oldcmds "github.com/glvd/starship/commands"
-	core "github.com/glvd/starship/core"
-	namesys "github.com/glvd/starship/namesys"
-	fsrepo "github.com/glvd/starship/repo/fsrepo"
+	assets "github.com/glvd/bustlinker/assets"
+	oldcmds "github.com/glvd/bustlinker/commands"
+	core "github.com/glvd/bustlinker/core"
+	namesys "github.com/glvd/bustlinker/namesys"
+	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	config "github.com/ipfs/go-ipfs-config"

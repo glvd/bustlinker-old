@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/glvd/starship/core/commands/cmdenv"
-	"github.com/glvd/starship/core/commands/e"
+	"github.com/glvd/bustlinker/core/commands/cmdenv"
+	"github.com/glvd/bustlinker/core/commands/e"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	files "github.com/ipfs/go-ipfs-files"

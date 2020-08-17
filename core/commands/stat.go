@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	humanize "github.com/dustin/go-humanize"
 	cmds "github.com/ipfs/go-ipfs-cmds"

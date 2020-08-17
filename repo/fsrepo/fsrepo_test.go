@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/glvd/starship/thirdparty/assert"
+	"github.com/glvd/bustlinker/thirdparty/assert"
 
 	datastore "github.com/ipfs/go-datastore"
 	config "github.com/ipfs/go-ipfs-config"

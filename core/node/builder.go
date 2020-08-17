@@ -8,9 +8,9 @@ import (
 
 	"go.uber.org/fx"
 
-	"github.com/glvd/starship/core/node/helpers"
-	"github.com/glvd/starship/core/node/libp2p"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/core/node/helpers"
+	"github.com/glvd/bustlinker/core/node/libp2p"
+	"github.com/glvd/bustlinker/repo"
 
 	ds "github.com/ipfs/go-datastore"
 	dsync "github.com/ipfs/go-datastore/sync"

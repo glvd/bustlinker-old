@@ -3,7 +3,7 @@ package repo
 import (
 	"errors"
 
-	keystore "github.com/glvd/starship/keystore"
+	keystore "github.com/glvd/bustlinker/keystore"
 	filestore "github.com/ipfs/go-filestore"
 
 	config "github.com/ipfs/go-ipfs-config"

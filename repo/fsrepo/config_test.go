@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/glvd/starship/plugin/loader"
-	"github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/plugin/loader"
+	"github.com/glvd/bustlinker/repo/fsrepo"
 
 	"github.com/ipfs/go-ipfs-config"
 )

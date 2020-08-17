@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	commands "github.com/glvd/starship/core/commands"
+	commands "github.com/glvd/bustlinker/core/commands"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 )

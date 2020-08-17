@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	libp2p "github.com/glvd/starship/core/node/libp2p"
+	libp2p "github.com/glvd/link/core/node/libp2p"
 	config "github.com/ipfs/go-ipfs-config"
 	files "github.com/ipfs/go-ipfs-files"
 	icore "github.com/ipfs/interface-go-ipfs-core"
@@ -18,10 +18,10 @@ import (
 	peerstore "github.com/libp2p/go-libp2p-peerstore"
 	ma "github.com/multiformats/go-multiaddr"
 
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/core/coreapi"
-	"github.com/glvd/starship/plugin/loader" // This package is needed so that all the preloaded plugins are loaded automatically
-	"github.com/glvd/starship/repo/fsrepo"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/coreapi"
+	"github.com/glvd/bustlinker/plugin/loader" // This package is needed so that all the preloaded plugins are loaded automatically
+	"github.com/glvd/bustlinker/repo/fsrepo"
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
@@ -249,6 +249,7 @@ func main() {
 		panic(err)
 	}
 	inputBasePath := filepath.Join(wd, "docs", "examples", "go-ipfs-as-a-library", "example-folder")
+	cacher := HashCacher(filepath.Join(inputBasePath, "hash"))
 	inputPathFile := filepath.Join(inputBasePath, "ipfs.paper.draft3.pdf")
 	inputPathDirectory := filepath.Join(inputBasePath, "test-dir")
 
@@ -263,7 +264,7 @@ func main() {
 	}
 
 	fmt.Printf("Added file to IPFS with CID %s\n", cidFile.String())
-
+	cacher.Store(cidFile.String(), cidFile.String())
 	someDirectory, err := getUnixfsNode(inputPathDirectory)
 	if err != nil {
 		panic(fmt.Errorf("Could not get File: %s", err))
@@ -286,6 +287,12 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("Could not get file with CID: %s", err))
 	}
+	var loadVal string
+	err = cacher.Load(cidFile.String(), &loadVal)
+	if err != nil {
+		panic(fmt.Errorf("load cache value failed: %s", err))
+	}
+	fmt.Println("load cache value:", loadVal)
 
 	err = files.WriteTo(rootNodeFile, outputPathFile)
 	if err != nil {

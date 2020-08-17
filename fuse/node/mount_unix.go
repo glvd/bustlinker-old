@@ -8,10 +8,10 @@ import (
 	"strings"
 	"sync"
 
-	core "github.com/glvd/starship/core"
-	ipns "github.com/glvd/starship/fuse/ipns"
-	mount "github.com/glvd/starship/fuse/mount"
-	rofs "github.com/glvd/starship/fuse/readonly"
+	core "github.com/glvd/bustlinker/core"
+	ipns "github.com/glvd/bustlinker/fuse/ipns"
+	mount "github.com/glvd/bustlinker/fuse/mount"
+	rofs "github.com/glvd/bustlinker/fuse/readonly"
 
 	logging "github.com/ipfs/go-log"
 )

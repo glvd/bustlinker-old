@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"strings"
 
-	core "github.com/glvd/starship/core"
-	coreapi "github.com/glvd/starship/core/coreapi"
-	namesys "github.com/glvd/starship/namesys"
+	core "github.com/glvd/bustlinker/core"
+	coreapi "github.com/glvd/bustlinker/core/coreapi"
+	namesys "github.com/glvd/bustlinker/namesys"
 	cid "github.com/ipfs/go-cid"
 	isd "github.com/jbenet/go-is-domain"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -326,7 +326,7 @@ func toSubdomainURL(hostname, path string, r *http.Request) (redirURL string, ok
 		// PeerIDs represented as CIDv1 are expected to have libp2p-key
 		// multicodec (https://github.com/libp2p/specs/pull/209).
 		// We ease the transition by fixing multicodec on the fly:
-		// https://github.com/glvd/starship/issues/5287#issuecomment-492163929
+		// https://github.com/glvd/bustlinker/issues/5287#issuecomment-492163929
 		if isPeerIDNamespace(ns) && multicodec != cid.Libp2pKey {
 			multicodec = cid.Libp2pKey
 		}

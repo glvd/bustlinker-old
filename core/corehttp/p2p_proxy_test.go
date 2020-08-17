@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/glvd/starship/thirdparty/assert"
+	"github.com/glvd/bustlinker/thirdparty/assert"
 
 	protocol "github.com/libp2p/go-libp2p-core/protocol"
 )

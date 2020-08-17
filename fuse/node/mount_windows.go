@@ -1,7 +1,7 @@
 package node
 
 import (
-	"github.com/glvd/starship/core"
+	"github.com/glvd/bustlinker/core"
 )
 
 func Mount(node *core.IpfsNode, fsdir, nsdir string) error {

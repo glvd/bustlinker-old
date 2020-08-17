@@ -5,8 +5,8 @@ import (
 	"io"
 	"os"
 
-	oldcmds "github.com/glvd/starship/commands"
-	fsrepo "github.com/glvd/starship/repo/fsrepo"
+	oldcmds "github.com/glvd/bustlinker/commands"
+	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	config "github.com/ipfs/go-ipfs-config"
 	"github.com/ipfs/interface-go-ipfs-core/options"

@@ -38,10 +38,10 @@ import (
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	record "github.com/libp2p/go-libp2p-record"
 
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/core/node"
-	"github.com/glvd/starship/namesys"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/node"
+	"github.com/glvd/bustlinker/namesys"
+	"github.com/glvd/bustlinker/repo"
 )
 
 var log = logging.Logger("core/coreapi")

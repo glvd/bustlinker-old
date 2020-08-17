@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
-	ncmd "github.com/glvd/starship/core/commands/name"
-	ns "github.com/glvd/starship/namesys"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
+	ncmd "github.com/glvd/bustlinker/core/commands/name"
+	ns "github.com/glvd/bustlinker/namesys"
 
 	cidenc "github.com/ipfs/go-cidutil/cidenc"
 	cmds "github.com/ipfs/go-ipfs-cmds"

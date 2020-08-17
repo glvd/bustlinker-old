@@ -6,10 +6,10 @@ import (
 	config "github.com/ipfs/go-ipfs-config"
 	"go.uber.org/fx"
 
-	"github.com/glvd/starship/core/node/helpers"
-	"github.com/glvd/starship/repo"
-	"github.com/glvd/starship/thirdparty/cidv0v1"
-	"github.com/glvd/starship/thirdparty/verifbs"
+	"github.com/glvd/bustlinker/core/node/helpers"
+	"github.com/glvd/bustlinker/repo"
+	"github.com/glvd/bustlinker/thirdparty/cidv0v1"
+	"github.com/glvd/bustlinker/thirdparty/verifbs"
 	"github.com/ipfs/go-filestore"
 )
 

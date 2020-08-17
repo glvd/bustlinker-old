@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 
 	inet "github.com/libp2p/go-libp2p-core/network"
 	swarmt "github.com/libp2p/go-libp2p-swarm/testing"

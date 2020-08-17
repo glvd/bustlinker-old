@@ -10,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	version "github.com/glvd/starship"
-	core "github.com/glvd/starship/core"
-	"github.com/glvd/starship/core/coreapi"
-	namesys "github.com/glvd/starship/namesys"
-	repo "github.com/glvd/starship/repo"
+	version "github.com/glvd/bustlinker"
+	core "github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/coreapi"
+	namesys "github.com/glvd/bustlinker/namesys"
+	repo "github.com/glvd/bustlinker/repo"
 
 	datastore "github.com/ipfs/go-datastore"
 	syncds "github.com/ipfs/go-datastore/sync"

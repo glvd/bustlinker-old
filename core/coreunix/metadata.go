@@ -1,7 +1,7 @@
 package coreunix
 
 import (
-	core "github.com/glvd/starship/core"
+	core "github.com/glvd/bustlinker/core"
 	cid "github.com/ipfs/go-cid"
 	dag "github.com/ipfs/go-merkledag"
 	ft "github.com/ipfs/go-unixfs"

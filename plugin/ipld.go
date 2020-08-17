@@ -1,7 +1,7 @@
 package plugin
 
 import (
-	"github.com/glvd/starship/core/coredag"
+	"github.com/glvd/bustlinker/core/coredag"
 
 	ipld "github.com/ipfs/go-ipld-format"
 )

@@ -8,7 +8,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/host"
 	disc "github.com/libp2p/go-libp2p-discovery"
 
-	"github.com/glvd/starship/core/node/helpers"
+	"github.com/glvd/bustlinker/core/node/helpers"
 	"go.uber.org/fx"
 )
 

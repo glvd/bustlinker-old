@@ -8,9 +8,9 @@ import (
 	"io"
 	"strings"
 
-	version "github.com/glvd/starship"
-	core "github.com/glvd/starship/core"
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	version "github.com/glvd/bustlinker"
+	core "github.com/glvd/bustlinker/core"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	ic "github.com/libp2p/go-libp2p-core/crypto"

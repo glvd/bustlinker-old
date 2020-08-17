@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/glvd/starship/core/bootstrap"
-	"github.com/glvd/starship/core/node"
+	"github.com/glvd/bustlinker/core/bootstrap"
+	"github.com/glvd/bustlinker/core/node"
 
 	"github.com/ipfs/go-metrics-interface"
 	"go.uber.org/fx"

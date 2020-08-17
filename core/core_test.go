@@ -5,7 +5,7 @@ import (
 
 	context "context"
 
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/repo"
 
 	datastore "github.com/ipfs/go-datastore"
 	syncds "github.com/ipfs/go-datastore/sync"

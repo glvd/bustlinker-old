@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	libp2p2 "github.com/glvd/starship/core/node/libp2p"
+	libp2p2 "github.com/glvd/bustlinker/core/node/libp2p"
 
-	"github.com/glvd/starship/commands"
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/commands"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/repo"
 
 	"github.com/ipfs/go-datastore"
 	syncds "github.com/ipfs/go-datastore/sync"

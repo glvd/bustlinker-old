@@ -5,8 +5,8 @@ import (
 	"path"
 	"runtime"
 
-	version "github.com/glvd/starship"
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	version "github.com/glvd/bustlinker"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	manet "github.com/multiformats/go-multiaddr-net"

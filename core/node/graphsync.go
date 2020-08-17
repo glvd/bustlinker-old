@@ -10,7 +10,7 @@ import (
 	libp2p "github.com/libp2p/go-libp2p-core"
 	"go.uber.org/fx"
 
-	"github.com/glvd/starship/core/node/helpers"
+	"github.com/glvd/bustlinker/core/node/helpers"
 )
 
 // Graphsync constructs a graphsync

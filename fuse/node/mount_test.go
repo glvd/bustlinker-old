@@ -13,9 +13,9 @@ import (
 
 	"context"
 
-	core "github.com/glvd/starship/core"
-	ipns "github.com/glvd/starship/fuse/ipns"
-	mount "github.com/glvd/starship/fuse/mount"
+	core "github.com/glvd/bustlinker/core"
+	ipns "github.com/glvd/bustlinker/fuse/ipns"
+	mount "github.com/glvd/bustlinker/fuse/mount"
 
 	ci "github.com/libp2p/go-libp2p-testing/ci"
 )

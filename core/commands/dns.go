@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	ncmd "github.com/glvd/starship/core/commands/name"
-	namesys "github.com/glvd/starship/namesys"
+	ncmd "github.com/glvd/bustlinker/core/commands/name"
+	namesys "github.com/glvd/bustlinker/namesys"
 	nsopts "github.com/ipfs/interface-go-ipfs-core/options/namesys"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"

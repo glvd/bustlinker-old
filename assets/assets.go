@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/core/coreapi"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/coreapi"
 
 	cid "github.com/ipfs/go-cid"
 	files "github.com/ipfs/go-ipfs-files"

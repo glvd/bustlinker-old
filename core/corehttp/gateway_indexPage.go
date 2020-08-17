@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/glvd/starship/assets"
+	"github.com/glvd/bustlinker/assets"
 )
 
 // structs for directory listing

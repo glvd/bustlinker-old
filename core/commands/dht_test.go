@@ -3,7 +3,7 @@ package commands
 import (
 	"testing"
 
-	"github.com/glvd/starship/namesys"
+	"github.com/glvd/bustlinker/namesys"
 
 	ipns "github.com/ipfs/go-ipns"
 	"github.com/libp2p/go-libp2p-core/test"

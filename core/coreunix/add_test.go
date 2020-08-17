@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/glvd/starship/core"
-	"github.com/glvd/starship/gc"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/gc"
+	"github.com/glvd/bustlinker/repo"
 
 	blocks "github.com/ipfs/go-block-format"
 	"github.com/ipfs/go-blockservice"

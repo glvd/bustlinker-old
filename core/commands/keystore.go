@@ -5,7 +5,7 @@ import (
 	"io"
 	"text/tabwriter"
 
-	cmdenv "github.com/glvd/starship/core/commands/cmdenv"
+	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	options "github.com/ipfs/interface-go-ipfs-core/options"

@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	version "github.com/glvd/starship"
+	version "github.com/glvd/bustlinker"
 	config "github.com/ipfs/go-ipfs-config"
 
 	logging "github.com/ipfs/go-log"

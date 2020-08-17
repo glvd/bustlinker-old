@@ -11,8 +11,8 @@ import (
 	record "github.com/libp2p/go-libp2p-record"
 	routedhost "github.com/libp2p/go-libp2p/p2p/host/routed"
 
-	"github.com/glvd/starship/core/node/helpers"
-	"github.com/glvd/starship/repo"
+	"github.com/glvd/bustlinker/core/node/helpers"
+	"github.com/glvd/bustlinker/repo"
 
 	"go.uber.org/fx"
 )
