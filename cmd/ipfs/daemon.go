@@ -18,6 +18,7 @@ import (
 	version "github.com/glvd/bustlinker"
 	utilmain "github.com/glvd/bustlinker/cmd/ipfs/util"
 	oldcmds "github.com/glvd/bustlinker/commands"
+	config "github.com/glvd/bustlinker/config"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/commands"
 	"github.com/glvd/bustlinker/core/corehttp"
@@ -27,7 +28,7 @@ import (
 	"github.com/glvd/bustlinker/link"
 	"github.com/glvd/bustlinker/repo/fsrepo"
 	migrate "github.com/glvd/bustlinker/repo/fsrepo/migrations"
-	config "github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	cserial "github.com/ipfs/go-ipfs-config/serialize"
 	sockets "github.com/libp2p/go-socket-activation"
 
@@ -242,15 +243,15 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	if initialize && !fsrepo.IsInitialized(cctx.ConfigRoot) {
 		cfgLocation, _ := req.Options[initConfigOptionKwd].(string)
 		profiles, _ := req.Options[initProfileOptionKwd].(string)
-		var conf *config.Config
+		conf := &config.Config{}
 
 		if cfgLocation != "" {
-			if conf, err = cserial.Load(cfgLocation); err != nil {
+			if conf.IPFS, err = cserial.Load(cfgLocation); err != nil {
 				return err
 			}
 		}
 
-		identity, err := config.CreateIdentity(os.Stdout, []options.KeyGenerateOption{
+		identity, err := ipfsconfig.CreateIdentity(os.Stdout, []options.KeyGenerateOption{
 			options.Key.Type(algorithmDefault),
 		})
 		if err != nil {
@@ -331,7 +332,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 			return err
 		}
 
-		routingOption = cfg.Routing.Type
+		routingOption = cfg.IPFS.Routing.Type
 		if routingOption == "" {
 			routingOption = routingOptionDHTKwd
 		}
@@ -395,6 +396,8 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		return err
 	}
 
+	pprofErrc, _ := servePprof(req, cctx)
+
 	// construct fuse mountpoints - if the user provided the --mount flag
 	mount, _ := req.Options[mountKwd].(bool)
 	if mount && offline {
@@ -454,7 +457,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	// collect long-running errors and block for shutdown
 	// TODO(cryptix): our fuse currently doesn't follow this pattern for graceful shutdown
 	var errs error
-	for err := range merge(apiErrc, gwErrc, gcErrc, lnkErrc) {
+	for err := range merge(apiErrc, gwErrc, gcErrc, lnkErrc, pprofErrc) {
 		if err != nil {
 			errs = multierror.Append(errs, err)
 		}
@@ -464,7 +467,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 }
 
 func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
-	lnk, err := link.New(node)
+	lnk, err := link.New(req.Context, node)
 	if err != nil {
 		return nil, err
 	}
@@ -477,6 +480,17 @@ func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
 		}
 	}(e)
 	return e, nil
+}
+
+func servePprof(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, error) {
+	errc := make(chan error)
+	go func() {
+		err := http.ListenAndServe(":6060", nil)
+		if err != nil {
+			errc <- err
+		}
+	}()
+	return errc, nil
 }
 
 // serveHTTPApi collects options, creates listener, prints status message and starts serving requests

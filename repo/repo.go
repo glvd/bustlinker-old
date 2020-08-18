@@ -7,8 +7,8 @@ import (
 	keystore "github.com/glvd/bustlinker/keystore"
 	filestore "github.com/ipfs/go-filestore"
 
+	config "github.com/glvd/bustlinker/config"
 	ds "github.com/ipfs/go-datastore"
-	config "github.com/ipfs/go-ipfs-config"
 	ma "github.com/multiformats/go-multiaddr"
 )
 

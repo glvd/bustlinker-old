@@ -16,8 +16,9 @@ import (
 	namesys "github.com/glvd/bustlinker/namesys"
 	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 
+	config "github.com/glvd/bustlinker/config"
 	cmds "github.com/ipfs/go-ipfs-cmds"
-	config "github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	files "github.com/ipfs/go-ipfs-files"
 	options "github.com/ipfs/interface-go-ipfs-core/options"
 )
@@ -36,14 +37,14 @@ Reinitializing would overwrite your keys.
 
 var initCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
-		Tagline: "Initializes ipfs config file.",
+		Tagline: "Initializes ipfs ipfsconfig file.",
 		ShortDescription: `
 Initializes ipfs configuration files and generates a new keypair.
 
 If you are going to run IPFS in server environment, you may want to
 initialize it using 'server' profile.
 
-For the list of available profiles see 'ipfs config profile --help'
+For the list of available profiles see 'ipfs ipfsconfig profile --help'
 
 ipfs uses a repository in the local file system. By default, the repo is
 located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
@@ -53,13 +54,13 @@ environment variable:
 `,
 	},
 	Arguments: []cmds.Argument{
-		cmds.FileArg("default-config", false, false, "Initialize with the given configuration.").EnableStdin(),
+		cmds.FileArg("default-ipfsconfig", false, false, "Initialize with the given configuration.").EnableStdin(),
 	},
 	Options: []cmds.Option{
 		cmds.StringOption(algorithmOptionName, "a", "Cryptographic algorithm to use for key generation.").WithDefault(algorithmDefault),
 		cmds.IntOption(bitsOptionName, "b", "Number of bits to use in the generated RSA private key."),
 		cmds.BoolOption(emptyRepoOptionName, "e", "Don't add and pin help files to the local storage."),
-		cmds.StringOption(profileOptionName, "p", "Apply profile settings to config. Multiple profiles can be separated by ','"),
+		cmds.StringOption(profileOptionName, "p", "Apply profile settings to ipfsconfig. Multiple profiles can be separated by ','"),
 
 		// TODO need to decide whether to expose the override as a file or a
 		// directory. That is: should we allow the user to also specify the
@@ -104,21 +105,21 @@ environment variable:
 				return fmt.Errorf("expected a regular file")
 			}
 
-			conf = &config.Config{}
+			conf := &config.Config{}
 			if err := json.NewDecoder(file).Decode(conf); err != nil {
 				return err
 			}
 		}
 
 		var err error
-		var identity config.Identity
+		var identity ipfsconfig.Identity
 		if nBitsGiven {
-			identity, err = config.CreateIdentity(os.Stdout, []options.KeyGenerateOption{
+			identity, err = ipfsconfig.CreateIdentity(os.Stdout, []options.KeyGenerateOption{
 				options.Key.Size(nBitsForKeypair),
 				options.Key.Type(algorithm),
 			})
 		} else {
-			identity, err = config.CreateIdentity(os.Stdout, []options.KeyGenerateOption{
+			identity, err = ipfsconfig.CreateIdentity(os.Stdout, []options.KeyGenerateOption{
 				options.Key.Type(algorithm),
 			})
 		}
@@ -131,13 +132,13 @@ environment variable:
 	},
 }
 
-func applyProfiles(conf *config.Config, profiles string) error {
+func applyProfiles(conf *ipfsconfig.Config, profiles string) error {
 	if profiles == "" {
 		return nil
 	}
 
 	for _, profile := range strings.Split(profiles, ",") {
-		transformer, ok := config.Profiles[profile]
+		transformer, ok := ipfsconfig.Profiles[profile]
 		if !ok {
 			return fmt.Errorf("invalid configuration profile: %s", profile)
 		}
@@ -149,7 +150,7 @@ func applyProfiles(conf *config.Config, profiles string) error {
 	return nil
 }
 
-func doInit(out io.Writer, repoRoot string, empty bool, identity *config.Identity, confProfiles string, conf *config.Config) error {
+func doInit(out io.Writer, repoRoot string, empty bool, identity *ipfsconfig.Identity, confProfiles string, conf *config.Config) error {
 	if _, err := fmt.Fprintf(out, "initializing IPFS node at %s\n", repoRoot); err != nil {
 		return err
 	}
@@ -167,18 +168,24 @@ func doInit(out io.Writer, repoRoot string, empty bool, identity *config.Identit
 	}
 
 	if conf == nil {
+		conf = &config.Config{}
+	}
+	if conf.IPFS == nil {
 		var err error
-		conf, err = config.InitWithIdentity(*identity)
+		conf.IPFS, err = ipfsconfig.InitWithIdentity(*identity)
 		if err != nil {
 			return err
 		}
 	}
+	if conf.Link == nil {
+		config.Init(repoRoot, conf.Link)
+	}
 
-	if err := applyProfiles(conf, confProfiles); err != nil {
+	if err := applyProfiles(conf.IPFS, confProfiles); err != nil {
 		return err
 	}
 
-	if err := fsrepo.Init(repoRoot, conf); err != nil {
+	if err := fsrepo.Init(repoRoot, conf.IPFS); err != nil {
 		return err
 	}
 

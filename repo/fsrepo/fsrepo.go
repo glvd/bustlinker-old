@@ -3,6 +3,7 @@ package fsrepo
 import (
 	"errors"
 	"fmt"
+	"github.com/glvd/bustlinker/config"
 	"io"
 	"io/ioutil"
 	"os"
@@ -20,7 +21,7 @@ import (
 	ds "github.com/ipfs/go-datastore"
 	measure "github.com/ipfs/go-ds-measure"
 	lockfile "github.com/ipfs/go-fs-lock"
-	config "github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	serialize "github.com/ipfs/go-ipfs-config/serialize"
 	util "github.com/ipfs/go-ipfs-util"
 	logging "github.com/ipfs/go-log"
@@ -28,7 +29,7 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 )
 
-// LockFile is the filename of the repo lock, relative to config dir
+// LockFile is the filename of the repo lock, relative to ipfsconfig dir
 // TODO rename repo lock and hide name
 const LockFile = "repo.lock"
 
@@ -80,10 +81,10 @@ var (
 	// function try to open the repo twice:
 	//
 	//     $ ipfs daemon &
-	//     $ ipfs config foo
+	//     $ ipfs ipfsconfig foo
 	//
 	// The reason for the above is that in standalone mode without the
-	// daemon, `ipfs config` tries to save work by not building the
+	// daemon, `ipfs ipfsconfig` tries to save work by not building the
 	// full IpfsNode, but accessing the Repo directly.
 	onlyOne repo.OnlyOne
 )
@@ -174,10 +175,11 @@ func open(repoPath string) (repo.Repo, error) {
 		return nil, err
 	}
 
-	if r.config.Experimental.FilestoreEnabled || r.config.Experimental.UrlstoreEnabled {
+	ipfs := r.config.IPFS
+	if ipfs.Experimental.FilestoreEnabled || ipfs.Experimental.UrlstoreEnabled {
 		r.filemgr = filestore.NewFileManager(r.ds, filepath.Dir(r.path))
-		r.filemgr.AllowFiles = r.config.Experimental.FilestoreEnabled
-		r.filemgr.AllowUrls = r.config.Experimental.UrlstoreEnabled
+		r.filemgr.AllowFiles = ipfs.Experimental.FilestoreEnabled
+		r.filemgr.AllowUrls = ipfs.Experimental.UrlstoreEnabled
 	}
 
 	keepLocked = true
@@ -205,7 +207,7 @@ func checkInitialized(path string) error {
 }
 
 // ConfigAt returns an error if the FSRepo at the given path is not
-// initialized. This function allows callers to read the config file even when
+// initialized. This function allows callers to read the ipfsconfig file even when
 // another process is running and holding the lock.
 func ConfigAt(repoPath string) (*config.Config, error) {
 
@@ -213,17 +215,19 @@ func ConfigAt(repoPath string) (*config.Config, error) {
 	packageLock.Lock()
 	defer packageLock.Unlock()
 
-	configFilename, err := config.Filename(repoPath)
+	configFilename, err := ipfsconfig.Filename(repoPath)
 	if err != nil {
 		return nil, err
 	}
-	return serialize.Load(configFilename)
+	cfg := &config.Config{}
+	err = serialize.ReadConfigFile(configFilename, cfg)
+	return cfg, err
 }
 
 // configIsInitialized returns true if the repo is initialized at
 // provided |path|.
 func configIsInitialized(path string) bool {
-	configFilename, err := config.Filename(path)
+	configFilename, err := ipfsconfig.Filename(path)
 	if err != nil {
 		return false
 	}
@@ -237,12 +241,12 @@ func initConfig(path string, conf *config.Config) error {
 	if configIsInitialized(path) {
 		return nil
 	}
-	configFilename, err := config.Filename(path)
+	configFilename, err := ipfsconfig.Filename(path)
 	if err != nil {
 		return err
 	}
-	// initialization is the one time when it's okay to write to the config
-	// without reading the config from disk and merging any user-provided keys
+	// initialization is the one time when it's okay to write to the ipfsconfig
+	// without reading the ipfsconfig from disk and merging any user-provided keys
 	// that may exist.
 	if err := serialize.WriteConfigFile(configFilename, conf); err != nil {
 		return err
@@ -252,7 +256,7 @@ func initConfig(path string, conf *config.Config) error {
 }
 
 func initSpec(path string, conf map[string]interface{}) error {
-	fn, err := config.Path(path, specFn)
+	fn, err := ipfsconfig.Path(path, specFn)
 	if err != nil {
 		return err
 	}
@@ -270,7 +274,7 @@ func initSpec(path string, conf map[string]interface{}) error {
 	return ioutil.WriteFile(fn, bytes, 0600)
 }
 
-// Init initializes a new FSRepo at the given path with the provided config.
+// Init initializes a new FSRepo at the given path with the provided ipfsconfig.
 // TODO add support for custom datastores.
 func Init(repoPath string, conf *config.Config) error {
 
@@ -287,7 +291,7 @@ func Init(repoPath string, conf *config.Config) error {
 		return err
 	}
 
-	if err := initSpec(repoPath, conf.Datastore.Spec); err != nil {
+	if err := initSpec(repoPath, conf.IPFS.Datastore.Spec); err != nil {
 		return err
 	}
 
@@ -387,11 +391,12 @@ func (r *FSRepo) SetAPIAddr(addr ma.Multiaddr) error {
 
 // openConfig returns an error if the config file is not present.
 func (r *FSRepo) openConfig() error {
-	configFilename, err := config.Filename(r.path)
+	configFilename, err := ipfsconfig.Filename(r.path)
 	if err != nil {
 		return err
 	}
-	conf, err := serialize.Load(configFilename)
+	conf := &config.Config{}
+	err = serialize.ReadConfigFile(configFilename, conf)
 	if err != nil {
 		return err
 	}
@@ -413,16 +418,17 @@ func (r *FSRepo) openKeystore() error {
 
 // openDatastore returns an error if the config file is not present.
 func (r *FSRepo) openDatastore() error {
-	if r.config.Datastore.Type != "" || r.config.Datastore.Path != "" {
-		return fmt.Errorf("old style datatstore config detected")
-	} else if r.config.Datastore.Spec == nil {
-		return fmt.Errorf("required Datastore.Spec entry missing from config file")
+	ipfs := r.config.IPFS
+	if ipfs.Datastore.Type != "" || ipfs.Datastore.Path != "" {
+		return fmt.Errorf("old style datatstore ipfsconfig detected")
+	} else if ipfs.Datastore.Spec == nil {
+		return fmt.Errorf("required Datastore.Spec entry missing from ipfsconfig file")
 	}
-	if r.config.Datastore.NoSync {
+	if ipfs.Datastore.NoSync {
 		log.Warn("NoSync is now deprecated in favor of datastore specific settings. If you want to disable fsync on flatfs set 'sync' to false. See https://github.com/glvd/link/blob/master/docs/datastores.md#flatfs.")
 	}
 
-	dsc, err := AnyDatastoreConfig(r.config.Datastore.Spec)
+	dsc, err := AnyDatastoreConfig(ipfs.Datastore.Spec)
 	if err != nil {
 		return err
 	}
@@ -451,7 +457,7 @@ func (r *FSRepo) openDatastore() error {
 }
 
 func (r *FSRepo) readSpec() (string, error) {
-	fn, err := config.Path(r.path, specFn)
+	fn, err := ipfsconfig.Path(r.path, specFn)
 	if err != nil {
 		return "", err
 	}
@@ -492,7 +498,7 @@ func (r *FSRepo) Close() error {
 	return r.lockfile.Close()
 }
 
-// Config the current config. This function DOES NOT copy the config. The caller
+// Config the current ipfsconfig. This function DOES NOT copy the ipfsconfig. The caller
 // MUST NOT modify it without first calling `Clone`.
 //
 // Result when not Open is undefined. The method may panic if it pleases.
@@ -506,7 +512,7 @@ func (r *FSRepo) Config() (*config.Config, error) {
 	defer packageLock.Unlock()
 
 	if r.closed {
-		return nil, errors.New("cannot access config, repo not open")
+		return nil, errors.New("cannot access ipfsconfig, repo not open")
 	}
 	return r.config, nil
 }
@@ -516,13 +522,13 @@ func (r *FSRepo) FileManager() *filestore.FileManager {
 }
 
 func (r *FSRepo) BackupConfig(prefix string) (string, error) {
-	temp, err := ioutil.TempFile(r.path, "config-"+prefix)
+	temp, err := ioutil.TempFile(r.path, "ipfsconfig-"+prefix)
 	if err != nil {
 		return "", err
 	}
 	defer temp.Close()
 
-	configFilename, err := config.Filename(r.path)
+	configFilename, err := ipfsconfig.Filename(r.path)
 	if err != nil {
 		return "", err
 	}
@@ -543,11 +549,11 @@ func (r *FSRepo) BackupConfig(prefix string) (string, error) {
 
 // setConfigUnsynced is for private use.
 func (r *FSRepo) setConfigUnsynced(updated *config.Config) error {
-	configFilename, err := config.Filename(r.path)
+	configFilename, err := ipfsconfig.Filename(r.path)
 	if err != nil {
 		return err
 	}
-	// to avoid clobbering user-provided keys, must read the config from disk
+	// to avoid clobbering user-provided keys, must read the ipfsconfig from disk
 	// as a map, write the updated struct values to the map and write the map
 	// to disk.
 	var mapconf map[string]interface{}
@@ -564,13 +570,13 @@ func (r *FSRepo) setConfigUnsynced(updated *config.Config) error {
 	if err := serialize.WriteConfigFile(configFilename, mapconf); err != nil {
 		return err
 	}
-	// Do not use `*r.config = ...`. This will modify the *shared* config
+	// Do not use `*r.ipfsconfig = ...`. This will modify the *shared* ipfsconfig
 	// returned by `r.Config`.
 	r.config = updated
 	return nil
 }
 
-// SetConfig updates the FSRepo's config. The user must not modify the config
+// SetConfig updates the FSRepo's ipfsconfig. The user must not modify the ipfsconfig
 // object after calling this method.
 func (r *FSRepo) SetConfig(updated *config.Config) error {
 
@@ -590,7 +596,7 @@ func (r *FSRepo) GetConfigKey(key string) (interface{}, error) {
 		return nil, errors.New("repo is closed")
 	}
 
-	filename, err := config.Filename(r.path)
+	filename, err := ipfsconfig.Filename(r.path)
 	if err != nil {
 		return nil, err
 	}
@@ -610,11 +616,11 @@ func (r *FSRepo) SetConfigKey(key string, value interface{}) error {
 		return errors.New("repo is closed")
 	}
 
-	filename, err := config.Filename(r.path)
+	filename, err := ipfsconfig.Filename(r.path)
 	if err != nil {
 		return err
 	}
-	// Load into a map so we don't end up writing any additional defaults to the config file.
+	// Load into a map so we don't end up writing any additional defaults to the ipfsconfig file.
 	var mapconf map[string]interface{}
 	if err := serialize.ReadConfigFile(filename, &mapconf); err != nil {
 		return err
@@ -622,8 +628,8 @@ func (r *FSRepo) SetConfigKey(key string, value interface{}) error {
 
 	// Load private key to guard against it being overwritten.
 	// NOTE: this is a temporary measure to secure this field until we move
-	// keys out of the config file.
-	pkval, err := common.MapGetKV(mapconf, config.PrivKeySelector)
+	// keys out of the ipfsconfig file.
+	pkval, err := common.MapGetKV(mapconf, ipfsconfig.PrivKeySelector)
 	if err != nil {
 		return err
 	}
@@ -634,7 +640,7 @@ func (r *FSRepo) SetConfigKey(key string, value interface{}) error {
 	}
 
 	// replace private key, in case it was overwritten.
-	if err := common.MapSetKV(mapconf, config.PrivKeySelector, pkval); err != nil {
+	if err := common.MapSetKV(mapconf, ipfsconfig.PrivKeySelector, pkval); err != nil {
 		return err
 	}
 
