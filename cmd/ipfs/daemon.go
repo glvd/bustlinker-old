@@ -470,7 +470,11 @@ func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
 	}
 	e := make(chan error)
 	go func(err chan<- error) {
-		err <- lnk.Start()
+		defer close(err)
+		e := lnk.Start()
+		if e != nil {
+			err <- e
+		}
 	}(e)
 	return e, nil
 }
