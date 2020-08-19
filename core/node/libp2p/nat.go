@@ -9,7 +9,7 @@ import (
 
 var NatPortMap = simpleOpt(libp2p.NATPortMap())
 
-func AutoNATService(throttle *ipfsconfig.AutoNATThrottleConfig) func() Libp2pOpts {
+func AutoNATService(throttle *config.AutoNATThrottleConfig) func() Libp2pOpts {
 	return func() (opts Libp2pOpts) {
 		opts.Opts = append(opts.Opts, libp2p.EnableNATService())
 		if throttle != nil {

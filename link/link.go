@@ -25,6 +25,7 @@ type link struct {
 }
 
 func (l *link) ListenAndServe(lis manet.Listener) error {
+	fmt.Println("Link start on address:", lis.Multiaddr().String())
 	for {
 		conn, err := lis.Accept()
 		if err != nil {
