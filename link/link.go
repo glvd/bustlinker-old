@@ -3,21 +3,47 @@ package link
 import (
 	"context"
 	"fmt"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/multiformats/go-multiaddr"
+	"net"
+	"sync"
 	"time"
 
 	"github.com/glvd/bustlinker/core"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/multiformats/go-multiaddr"
+	manet "github.com/multiformats/go-multiaddr-net"
 )
 
 type Linker interface {
 	Start() error
+	ListenAndServe(lis manet.Listener) error
 }
 
 type link struct {
-	ctx     context.Context
-	node    *core.IpfsNode
-	manager Manager
+	ctx        context.Context
+	node       *core.IpfsNode
+	connectors sync.Map
+}
+
+func (l *link) ListenAndServe(lis manet.Listener) error {
+	for {
+		conn, err := lis.Accept()
+		if err != nil {
+			continue
+		}
+		err = l.NewConn(conn)
+		if err == nil {
+			continue
+		}
+		//no callback closed
+		err = conn.Close()
+		if err != nil {
+			log.Errorw("accept conn error", "err", err)
+		}
+	}
+}
+
+func (l *link) NewConn(conn net.Conn) error {
+	return nil
 }
 
 func (l link) Start() error {
@@ -70,13 +96,11 @@ func (l link) Start() error {
 	return nil
 }
 
-func New(ctx context.Context, node *core.IpfsNode) (Linker, error) {
-
+func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
-		ctx:     ctx,
-		node:    node,
-		manager: nil,
-	}, nil
+		ctx:  ctx,
+		node: node,
+	}
 }
 
 var _ Linker = &link{}
