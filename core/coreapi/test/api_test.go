@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/glvd/bustlinker/config"
 	"os"
 	"path/filepath"
 	"testing"
@@ -38,7 +39,7 @@ func (NodeProvider) MakeAPISwarm(ctx context.Context, fullIdentity bool, n int) 
 	apis := make([]coreiface.CoreAPI, n)
 
 	for i := 0; i < n; i++ {
-		var ident config.Identity
+		var ident ipfsconfig.Identity
 		if fullIdentity {
 			sk, pk, err := ci.GenerateKeyPair(ci.RSA, 2048)
 			if err != nil {
@@ -55,24 +56,26 @@ func (NodeProvider) MakeAPISwarm(ctx context.Context, fullIdentity bool, n int) 
 				return nil, err
 			}
 
-			ident = config.Identity{
+			ident = ipfsconfig.Identity{
 				PeerID:  id.Pretty(),
 				PrivKey: base64.StdEncoding.EncodeToString(kbytes),
 			}
 		} else {
-			ident = config.Identity{
+			ident = ipfsconfig.Identity{
 				PeerID: testPeerID,
 			}
 		}
 
-		c := config.Config{}
+		c := ipfsconfig.Config{}
 		c.Addresses.Swarm = []string{fmt.Sprintf("/ip4/18.0.%d.1/tcp/4001", i)}
 		c.Identity = ident
 		c.Experimental.FilestoreEnabled = true
 
 		ds := syncds.MutexWrap(datastore.NewMapDatastore())
 		r := &repo.Mock{
-			C: c,
+			C: config.Config{
+				IPFS: &c,
+			},
 			D: ds,
 			K: keystore.NewMemKeystore(),
 			F: filestore.NewFileManager(ds, filepath.Dir(os.TempDir())),

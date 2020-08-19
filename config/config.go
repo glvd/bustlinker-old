@@ -10,7 +10,7 @@ import (
 type IPFSConfig = config.Config
 
 type LinkConfig struct {
-	Service Service
+	Addresses []string
 }
 
 // Config ...
@@ -59,6 +59,12 @@ func ToMap(conf *Config) (map[string]interface{}, error) {
 	return m, nil
 }
 
-func Init(repoPath string, conf *LinkConfig) error {
-	return nil
+func InitLinkConfig(repoPath string, conf *Config) (*LinkConfig, error) {
+	var cfg LinkConfig
+	cfg.Addresses = defaultAddresses()
+	return &cfg, nil
+}
+
+func defaultAddresses() []string {
+	return []string{"/ip4/0.0.0.0/tcp/4001", "/ip4/0.0.0.0/tcp/4001"}
 }

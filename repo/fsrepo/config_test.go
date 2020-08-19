@@ -95,7 +95,7 @@ func TestDefaultDatastoreConfig(t *testing.T) {
 	}
 	defer os.RemoveAll(dir) // clean up
 
-	config := new(config.Datastore)
+	config := new(ipfsconfig.Datastore)
 	err = json.Unmarshal(defaultConfig, config)
 	if err != nil {
 		t.Fatal(err)
@@ -122,7 +122,7 @@ func TestDefaultDatastoreConfig(t *testing.T) {
 }
 
 func TestLevelDbConfig(t *testing.T) {
-	config := new(config.Datastore)
+	config := new(ipfsconfig.Datastore)
 	err := json.Unmarshal(defaultConfig, config)
 	if err != nil {
 		t.Fatal(err)
@@ -160,7 +160,7 @@ func TestLevelDbConfig(t *testing.T) {
 }
 
 func TestFlatfsConfig(t *testing.T) {
-	config := new(config.Datastore)
+	config := new(ipfsconfig.Datastore)
 	err := json.Unmarshal(defaultConfig, config)
 	if err != nil {
 		t.Fatal(err)
@@ -198,7 +198,7 @@ func TestFlatfsConfig(t *testing.T) {
 }
 
 func TestMeasureConfig(t *testing.T) {
-	config := new(config.Datastore)
+	config := new(ipfsconfig.Datastore)
 	err := json.Unmarshal(defaultConfig, config)
 	if err != nil {
 		t.Fatal(err)

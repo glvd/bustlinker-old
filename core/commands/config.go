@@ -127,7 +127,7 @@ Set the value of the 'Datastore.Path' key:
 				return nil
 			}
 
-			buf, err := config.HumanOutput(out.Value)
+			buf, err := ipfsconfig.HumanOutput(out.Value)
 			if err != nil {
 				return err
 			}
@@ -154,7 +154,7 @@ NOTE: For security reasons, this command will omit your private key. If you woul
 			return err
 		}
 
-		fname, err := config.Filename(cfgRoot)
+		fname, err := ipfsconfig.Filename(cfgRoot)
 		if err != nil {
 			return err
 		}
@@ -170,7 +170,7 @@ NOTE: For security reasons, this command will omit your private key. If you woul
 			return err
 		}
 
-		err = scrubValue(cfg, []string{config.IdentityTag, config.PrivKeyTag})
+		err = scrubValue(cfg, []string{ipfsconfig.IdentityTag, ipfsconfig.PrivKeyTag})
 		if err != nil {
 			return err
 		}
@@ -179,7 +179,7 @@ NOTE: For security reasons, this command will omit your private key. If you woul
 	},
 	Encoders: cmds.EncoderMap{
 		cmds.Text: cmds.MakeTypedEncoder(func(req *cmds.Request, w io.Writer, out *map[string]interface{}) error {
-			buf, err := config.HumanOutput(out)
+			buf, err := ipfsconfig.HumanOutput(out)
 			if err != nil {
 				return err
 			}
@@ -246,7 +246,7 @@ variable set to your preferred text editor.
 			return err
 		}
 
-		filename, err := config.Filename(cfgRoot)
+		filename, err := ipfsconfig.Filename(cfgRoot)
 		if err != nil {
 			return err
 		}
@@ -314,7 +314,7 @@ var configProfileApplyCmd = &cmds.Command{
 		cmds.StringArg("profile", true, false, "The profile to apply to the config."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
-		profile, ok := config.Profiles[req.Arguments[0]]
+		profile, ok := ipfsconfig.Profiles[req.Arguments[0]]
 		if !ok {
 			return fmt.Errorf("%s is not a profile", req.Arguments[0])
 		}
@@ -360,7 +360,7 @@ var configProfileApplyCmd = &cmds.Command{
 func buildProfileHelp() string {
 	var out string
 
-	for name, profile := range config.Profiles {
+	for name, profile := range ipfsconfig.Profiles {
 		dlines := strings.Split(profile.Description, "\n")
 		for i := range dlines {
 			dlines[i] = "    " + dlines[i]
@@ -373,13 +373,13 @@ func buildProfileHelp() string {
 }
 
 // scrubPrivKey scrubs private key for security reasons.
-func scrubPrivKey(cfg *config.Config) (map[string]interface{}, error) {
-	cfgMap, err := config.ToMap(cfg)
+func scrubPrivKey(cfg *ipfsconfig.Config) (map[string]interface{}, error) {
+	cfgMap, err := ipfsconfig.ToMap(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	err = scrubValue(cfgMap, []string{config.IdentityTag, config.PrivKeyTag})
+	err = scrubValue(cfgMap, []string{ipfsconfig.IdentityTag, ipfsconfig.PrivKeyTag})
 	if err != nil {
 		return nil, err
 	}
@@ -392,7 +392,7 @@ func scrubPrivKey(cfg *config.Config) (map[string]interface{}, error) {
 // If dryRun is true, repo's config should not be updated and persisted
 // to storage. Otherwise, repo's config should be updated and persisted
 // to storage.
-func transformConfig(configRoot string, configName string, transformer config.Transformer, dryRun bool) (*config.Config, *config.Config, error) {
+func transformConfig(configRoot string, configName string, transformer ipfsconfig.Transformer, dryRun bool) (*ipfsconfig.Config, *ipfsconfig.Config, error) {
 	r, err := fsrepo.Open(configRoot)
 	if err != nil {
 		return nil, nil, err
@@ -461,7 +461,7 @@ func editConfig(filename string) error {
 }
 
 func replaceConfig(r repo.Repo, file io.Reader) error {
-	var cfg config.Config
+	var cfg ipfsconfig.Config
 	if err := json.NewDecoder(file).Decode(&cfg); err != nil {
 		return errors.New("failed to decode file as config")
 	}
@@ -469,7 +469,7 @@ func replaceConfig(r repo.Repo, file io.Reader) error {
 		return errors.New("setting private key with API is not supported")
 	}
 
-	keyF, err := getConfig(r, config.PrivKeySelector)
+	keyF, err := getConfig(r, ipfsconfig.PrivKeySelector)
 	if err != nil {
 		return errors.New("failed to get PrivKey")
 	}

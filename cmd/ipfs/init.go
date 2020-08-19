@@ -60,7 +60,7 @@ environment variable:
 		cmds.StringOption(algorithmOptionName, "a", "Cryptographic algorithm to use for key generation.").WithDefault(algorithmDefault),
 		cmds.IntOption(bitsOptionName, "b", "Number of bits to use in the generated RSA private key."),
 		cmds.BoolOption(emptyRepoOptionName, "e", "Don't add and pin help files to the local storage."),
-		cmds.StringOption(profileOptionName, "p", "Apply profile settings to ipfsconfig. Multiple profiles can be separated by ','"),
+		cmds.StringOption(profileOptionName, "p", "Apply profile settings to ipfs config. Multiple profiles can be separated by ','"),
 
 		// TODO need to decide whether to expose the override as a file or a
 		// directory. That is: should we allow the user to also specify the
@@ -178,7 +178,11 @@ func doInit(out io.Writer, repoRoot string, empty bool, identity *ipfsconfig.Ide
 		}
 	}
 	if conf.Link == nil {
-		config.Init(repoRoot, conf.Link)
+		var err error
+		conf.Link, err = config.InitLinkConfig(repoRoot, conf)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err := applyProfiles(conf.IPFS, confProfiles); err != nil {
