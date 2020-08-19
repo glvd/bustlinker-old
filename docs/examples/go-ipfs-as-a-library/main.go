@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	libp2p "github.com/glvd/link/core/node/libp2p"
+	libp2p "github.com/glvd/bustlinker/core/node/libp2p"
 	config "github.com/ipfs/go-ipfs-config"
 	files "github.com/ipfs/go-ipfs-files"
 	icore "github.com/ipfs/interface-go-ipfs-core"

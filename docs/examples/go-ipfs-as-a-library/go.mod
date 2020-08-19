@@ -4,8 +4,8 @@ go 1.14
 
 require (
 	github.com/dgraph-io/badger/v2 v2.0.3
-	github.com/glvd/bustlinker v0.0.0-20200730035755-b22faa4309b0
-	github.com/ipfs/go-ipfs-config v0.8.0
+	github.com/glvd/bustlinker v0.0.0-20200818103027-7d285cca0208 // indirect
+	github.com/ipfs/go-ipfs-config v0.9.0
 	github.com/ipfs/go-ipfs-files v0.0.8
 	github.com/ipfs/interface-go-ipfs-core v0.3.0
 	github.com/libp2p/go-libp2p-core v0.5.7
