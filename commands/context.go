@@ -59,7 +59,7 @@ func (c *Context) GetNode() (*core.IpfsNode, error) {
 		c.node, err = c.ConstructNode()
 		if err == nil {
 			// Pre-load the config from the repo to avoid re-parsing it from disk.
-			if cfg, err := c.node.Repo.Config(); err != nil {
+			if cfg, err := c.node.Repo.IPFSConfig(); err != nil {
 				c.config = cfg
 			}
 		}

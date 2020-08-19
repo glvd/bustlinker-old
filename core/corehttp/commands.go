@@ -129,7 +129,7 @@ func commandsOption(cctx oldcmds.Context, command *cmds.Command, allowGet bool) 
 
 		cfg.SetAllowedMethods(corsAllowedMethods...)
 		cfg.APIPath = APIPath
-		rcfg, err := n.Repo.Config()
+		rcfg, err := n.Repo.IPFSConfig()
 		if err != nil {
 			return nil, err
 		}

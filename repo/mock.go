@@ -2,11 +2,11 @@ package repo
 
 import (
 	"errors"
+	"github.com/glvd/bustlinker/config"
 
 	keystore "github.com/glvd/bustlinker/keystore"
 	filestore "github.com/ipfs/go-filestore"
 
-	config "github.com/ipfs/go-ipfs-config"
 	ma "github.com/multiformats/go-multiaddr"
 )
 
@@ -20,8 +20,26 @@ type Mock struct {
 	F *filestore.FileManager
 }
 
+func (m *Mock) IPFSConfig() (*config.IPFSConfig, error) {
+	return m.C.IPFS, nil // FIXME threadsafety
+}
+
+func (m *Mock) LinkConfig() (*config.LinkConfig, error) {
+	return m.C.Link, nil // FIXME threadsafety
+}
+
 func (m *Mock) Config() (*config.Config, error) {
 	return &m.C, nil // FIXME threadsafety
+}
+
+func (m *Mock) SetIPFSConfig(cfg *config.IPFSConfig) error {
+	m.C.IPFS = cfg
+	return nil
+}
+
+func (m *Mock) SetLinkConfig(cfg *config.LinkConfig) error {
+	m.C.Link = cfg
+	return nil
 }
 
 func (m *Mock) SetConfig(updated *config.Config) error {

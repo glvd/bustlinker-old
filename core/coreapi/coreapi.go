@@ -201,7 +201,7 @@ func (api *CoreAPI) WithOptions(opts ...options.ApiOption) (coreiface.CoreAPI, e
 	}
 
 	if settings.Offline {
-		cfg, err := n.Repo.Config()
+		cfg, err := n.Repo.IPFSConfig()
 		if err != nil {
 			return nil, err
 		}

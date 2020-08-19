@@ -544,7 +544,7 @@ func p2pGetNode(env cmds.Environment) (*core.IpfsNode, error) {
 		return nil, err
 	}
 
-	config, err := nd.Repo.Config()
+	config, err := nd.Repo.IPFSConfig()
 	if err != nil {
 		return nil, err
 	}

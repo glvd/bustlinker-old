@@ -502,6 +502,36 @@ func (r *FSRepo) Close() error {
 // MUST NOT modify it without first calling `Clone`.
 //
 // Result when not Open is undefined. The method may panic if it pleases.
+func (r *FSRepo) IPFSConfig() (*ipfsconfig.Config, error) {
+	// It is not necessary to hold the package lock since the repo is in an
+	// opened state. The package lock is _not_ meant to ensure that the repo is
+	// thread-safe. The package lock is only meant to guard against removal and
+	// coordinate the lockfile. However, we provide thread-safety to keep
+	// things simple.
+	packageLock.Lock()
+	defer packageLock.Unlock()
+
+	if r.closed {
+		return nil, errors.New("cannot access ipfs config, repo not open")
+	}
+	return r.config.IPFS, nil
+}
+
+func (r *FSRepo) LinkConfig() (*config.LinkConfig, error) {
+	// It is not necessary to hold the package lock since the repo is in an
+	// opened state. The package lock is _not_ meant to ensure that the repo is
+	// thread-safe. The package lock is only meant to guard against removal and
+	// coordinate the lockfile. However, we provide thread-safety to keep
+	// things simple.
+	packageLock.Lock()
+	defer packageLock.Unlock()
+
+	if r.closed {
+		return nil, errors.New("cannot access link config, repo not open")
+	}
+	return r.config.Link, nil
+}
+
 func (r *FSRepo) Config() (*config.Config, error) {
 	// It is not necessary to hold the package lock since the repo is in an
 	// opened state. The package lock is _not_ meant to ensure that the repo is
@@ -512,7 +542,7 @@ func (r *FSRepo) Config() (*config.Config, error) {
 	defer packageLock.Unlock()
 
 	if r.closed {
-		return nil, errors.New("cannot access ipfsconfig, repo not open")
+		return nil, errors.New("cannot access config, repo not open")
 	}
 	return r.config, nil
 }
@@ -571,9 +601,35 @@ func (r *FSRepo) setConfigUnsynced(updated *config.Config) error {
 		return err
 	}
 	// Do not use `*r.ipfsconfig = ...`. This will modify the *shared* ipfsconfig
-	// returned by `r.Config`.
+	// returned by `r.IPFSConfig`.
 	r.config = updated
 	return nil
+}
+
+func (r *FSRepo) SetIPFSConfig(cfg *ipfsconfig.Config) error {
+	// packageLock is held to provide thread-safety.
+	packageLock.Lock()
+	defer packageLock.Unlock()
+
+	clone, err := r.config.Clone()
+	if err != nil {
+		return err
+	}
+	clone.IPFS = cfg
+	return r.setConfigUnsynced(clone)
+}
+
+func (r *FSRepo) SetLinkConfig(cfg *config.LinkConfig) error {
+	// packageLock is held to provide thread-safety.
+	packageLock.Lock()
+	defer packageLock.Unlock()
+
+	clone, err := r.config.Clone()
+	if err != nil {
+		return err
+	}
+	clone.Link = cfg
+	return r.setConfigUnsynced(clone)
 }
 
 // SetConfig updates the FSRepo's ipfsconfig. The user must not modify the ipfsconfig

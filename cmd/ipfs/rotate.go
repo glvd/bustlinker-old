@@ -73,7 +73,7 @@ func doRotate(out io.Writer, repoRoot string, oldKey string, algorithm string, n
 	defer repo.Close()
 
 	// Read config file from repo
-	cfg, err := repo.Config()
+	cfg, err := repo.IPFSConfig()
 	if err != nil {
 		return fmt.Errorf("reading config from repo (%v)", err)
 	}
@@ -108,7 +108,7 @@ func doRotate(out io.Writer, repoRoot string, oldKey string, algorithm string, n
 	cfg.Identity = identity
 
 	// Write config file to repo
-	if err = repo.SetConfig(cfg); err != nil {
+	if err = repo.SetIPFSConfig(cfg); err != nil {
 		return fmt.Errorf("saving new key to config (%v)", err)
 	}
 	return nil

@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"github.com/glvd/bustlinker/config"
 
 	"go.uber.org/fx"
 
@@ -14,7 +15,7 @@ import (
 
 	ds "github.com/ipfs/go-datastore"
 	dsync "github.com/ipfs/go-datastore/sync"
-	cfg "github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	ci "github.com/libp2p/go-libp2p-core/crypto"
 	peer "github.com/libp2p/go-libp2p-core/peer"
 )
@@ -81,7 +82,7 @@ func (cfg *BuildCfg) fillDefaults() error {
 }
 
 // options creates fx option group from this build config
-func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *cfg.Config) {
+func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *ipfsconfig.Config) {
 	err := cfg.fillDefaults()
 	if err != nil {
 		return fx.Error(err), nil
@@ -109,7 +110,7 @@ func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *cfg.Config) {
 		return cfg.Routing
 	})
 
-	conf, err := cfg.Repo.Config()
+	conf, err := cfg.Repo.IPFSConfig()
 	if err != nil {
 		return fx.Error(err), nil
 	}
@@ -123,7 +124,7 @@ func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *cfg.Config) {
 }
 
 func defaultRepo(dstore repo.Datastore) (repo.Repo, error) {
-	c := cfg.Config{}
+	c := ipfsconfig.Config{}
 	priv, pub, err := ci.GenerateKeyPairWithReader(ci.RSA, 2048, rand.Reader)
 	if err != nil {
 		return nil, err
@@ -139,13 +140,15 @@ func defaultRepo(dstore repo.Datastore) (repo.Repo, error) {
 		return nil, err
 	}
 
-	c.Bootstrap = cfg.DefaultBootstrapAddresses
+	c.Bootstrap = ipfsconfig.DefaultBootstrapAddresses
 	c.Addresses.Swarm = []string{"/ip4/0.0.0.0/tcp/4001", "/ip4/0.0.0.0/udp/4001/quic"}
 	c.Identity.PeerID = pid.Pretty()
 	c.Identity.PrivKey = base64.StdEncoding.EncodeToString(privkeyb)
 
 	return &repo.Mock{
 		D: dstore,
-		C: c,
+		C: config.Config{
+			IPFS: &c,
+		},
 	}, nil
 }

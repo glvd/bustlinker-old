@@ -31,7 +31,7 @@ type GC struct {
 
 func NewGC(n *core.IpfsNode) (*GC, error) {
 	r := n.Repo
-	cfg, err := r.Config()
+	cfg, err := r.IPFSConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func GarbageCollectAsync(n *core.IpfsNode, ctx context.Context) <-chan gc.Result
 }
 
 func PeriodicGC(ctx context.Context, node *core.IpfsNode) error {
-	cfg, err := node.Repo.Config()
+	cfg, err := node.Repo.IPFSConfig()
 	if err != nil {
 		return err
 	}

@@ -125,7 +125,7 @@ func newTestServerAndNode(t *testing.T, ns mockNamesys) (*httptest.Server, iface
 		t.Fatal(err)
 	}
 
-	cfg, err := n.Repo.Config()
+	cfg, err := n.Repo.IPFSConfig()
 	if err != nil {
 		t.Fatal(err)
 	}

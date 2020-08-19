@@ -327,12 +327,12 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 
 	routingOption, _ := req.Options[routingOptionKwd].(string)
 	if routingOption == routingOptionDefaultKwd {
-		cfg, err := repo.Config()
+		cfg, err := repo.IPFSConfig()
 		if err != nil {
 			return err
 		}
 
-		routingOption = cfg.IPFS.Routing.Type
+		routingOption = cfg.Routing.Type
 		if routingOption == "" {
 			routingOption = routingOptionDHTKwd
 		}

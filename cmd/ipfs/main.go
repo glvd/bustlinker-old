@@ -25,7 +25,7 @@ import (
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	"github.com/ipfs/go-ipfs-cmds/cli"
 	cmdhttp "github.com/ipfs/go-ipfs-cmds/http"
-	config "github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	u "github.com/ipfs/go-ipfs-util"
 	logging "github.com/ipfs/go-log"
 	loggables "github.com/libp2p/go-libp2p-loggables"
@@ -322,8 +322,12 @@ func getRepoPath(req *cmds.Request) (string, error) {
 	return repoPath, nil
 }
 
-func loadConfig(path string) (*config.Config, error) {
-	return fsrepo.ConfigAt(path)
+func loadConfig(path string) (*ipfsconfig.Config, error) {
+	cfg, err := fsrepo.ConfigAt(path)
+	if err != nil {
+		return nil, err
+	}
+	return cfg.IPFS, nil
 }
 
 // startProfiling begins CPU profiling and returns a `stop` function to be

@@ -215,7 +215,7 @@ func cmdCtx(node *core.IpfsNode, repoPath string) commands.Context {
 	return commands.Context{
 		ConfigRoot: repoPath,
 		LoadConfig: func(path string) (*config.Config, error) {
-			return node.Repo.Config()
+			return node.Repo.IPFSConfig()
 		},
 		ConstructNode: func() (*core.IpfsNode, error) {
 			return node, nil

@@ -90,7 +90,7 @@ in the bootstrap list).
 			return err
 		}
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -128,7 +128,7 @@ in the bootstrap list).`,
 		}
 
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -181,7 +181,7 @@ var bootstrapRemoveCmd = &cmds.Command{
 			return err
 		}
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -226,7 +226,7 @@ var bootstrapRemoveAllCmd = &cmds.Command{
 			return err
 		}
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -263,7 +263,7 @@ var bootstrapListCmd = &cmds.Command{
 			return err
 		}
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -337,7 +337,7 @@ func bootstrapAdd(r repo.Repo, cfg *config.Config, peers []string) ([]string, er
 		addedMap[s] = struct{}{}
 	}
 
-	if err := r.SetConfig(cfg); err != nil {
+	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
 
@@ -398,7 +398,7 @@ func bootstrapRemove(r repo.Repo, cfg *config.Config, toRemove []string) ([]stri
 	}
 	cfg.SetBootstrapPeers(keep)
 
-	if err := r.SetConfig(cfg); err != nil {
+	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
 
@@ -412,7 +412,7 @@ func bootstrapRemoveAll(r repo.Repo, cfg *config.Config) ([]string, error) {
 	}
 
 	cfg.Bootstrap = nil
-	if err := r.SetConfig(cfg); err != nil {
+	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
 	return config.BootstrapPeerStrings(removed), nil

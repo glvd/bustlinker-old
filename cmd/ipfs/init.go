@@ -185,7 +185,7 @@ func doInit(out io.Writer, repoRoot string, empty bool, identity *ipfsconfig.Ide
 		return err
 	}
 
-	if err := fsrepo.Init(repoRoot, conf.IPFS); err != nil {
+	if err := fsrepo.Init(repoRoot, conf); err != nil {
 		return err
 	}
 

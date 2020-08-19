@@ -6,7 +6,7 @@ type Environment struct {
 	Repo string
 
 	// The plugin's config, if specified in the
-	// Plugins.Plugins["plugin-name"].Config field of the user's go-ipfs
+	// Plugins.Plugins["plugin-name"].IPFSConfig field of the user's go-ipfs
 	// config. See docs/plugins.md for details.
 	//
 	// This is an arbitrary JSON-like object unmarshaled into an interface{}

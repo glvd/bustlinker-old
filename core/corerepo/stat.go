@@ -66,7 +66,7 @@ func RepoStat(ctx context.Context, n *core.IpfsNode) (Stat, error) {
 func RepoSize(ctx context.Context, n *core.IpfsNode) (SizeStat, error) {
 	r := n.Repo
 
-	cfg, err := r.Config()
+	cfg, err := r.IPFSConfig()
 	if err != nil {
 		return SizeStat{}, err
 	}

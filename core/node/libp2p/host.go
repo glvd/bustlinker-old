@@ -44,7 +44,7 @@ func Host(mctx helpers.MetricsCtx, lc fx.Lifecycle, params P2PHostIn) (out P2PHo
 	}
 
 	ctx := helpers.LifecycleCtx(mctx, lc)
-	cfg, err := params.Repo.Config()
+	cfg, err := params.Repo.IPFSConfig()
 	if err != nil {
 		return out, err
 	}

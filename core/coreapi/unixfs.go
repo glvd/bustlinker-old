@@ -60,7 +60,7 @@ func (api *UnixfsAPI) Add(ctx context.Context, files files.Node, opts ...options
 		return nil, err
 	}
 
-	cfg, err := api.repo.Config()
+	cfg, err := api.repo.IPFSConfig()
 	if err != nil {
 		return nil, err
 	}

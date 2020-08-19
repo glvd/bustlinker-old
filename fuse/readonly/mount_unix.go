@@ -10,7 +10,7 @@ import (
 
 // Mount mounts IPFS at a given location, and returns a mount.Mount instance.
 func Mount(ipfs *core.IpfsNode, mountpoint string) (mount.Mount, error) {
-	cfg, err := ipfs.Repo.Config()
+	cfg, err := ipfs.Repo.IPFSConfig()
 	if err != nil {
 		return nil, err
 	}

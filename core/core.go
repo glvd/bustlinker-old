@@ -160,7 +160,7 @@ func (n *IpfsNode) Bootstrap(cfg bootstrap.BootstrapConfig) error {
 }
 
 func (n *IpfsNode) loadBootstrapPeers() ([]peer.AddrInfo, error) {
-	cfg, err := n.Repo.Config()
+	cfg, err := n.Repo.IPFSConfig()
 	if err != nil {
 		return nil, err
 	}

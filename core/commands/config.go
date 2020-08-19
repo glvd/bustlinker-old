@@ -399,7 +399,7 @@ func transformConfig(configRoot string, configName string, transformer config.Tr
 	}
 	defer r.Close()
 
-	oldCfg, err := r.Config()
+	oldCfg, err := r.IPFSConfig()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -421,7 +421,7 @@ func transformConfig(configRoot string, configName string, transformer config.Tr
 			return nil, nil, err
 		}
 
-		err = r.SetConfig(newCfg)
+		err = r.SetIPFSConfig(newCfg)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -481,5 +481,5 @@ func replaceConfig(r repo.Repo, file io.Reader) error {
 
 	cfg.Identity.PrivKey = pkstr
 
-	return r.SetConfig(&cfg)
+	return r.SetIPFSConfig(&cfg)
 }

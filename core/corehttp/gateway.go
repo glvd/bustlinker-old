@@ -42,7 +42,7 @@ func cleanHeaderSet(headers []string) []string {
 
 func GatewayOption(writable bool, paths ...string) ServeOption {
 	return func(n *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
-		cfg, err := n.Repo.Config()
+		cfg, err := n.Repo.IPFSConfig()
 		if err != nil {
 			return nil, err
 		}

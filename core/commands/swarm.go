@@ -602,7 +602,7 @@ var swarmFiltersAddCmd = &cmds.Command{
 			return err
 		}
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -654,7 +654,7 @@ var swarmFiltersRmCmd = &cmds.Command{
 			return err
 		}
 		defer r.Close()
-		cfg, err := r.Config()
+		cfg, err := r.IPFSConfig()
 		if err != nil {
 			return err
 		}
@@ -724,7 +724,7 @@ func filtersAdd(r repo.Repo, cfg *config.Config, filters []string) ([]string, er
 		addedMap[filter] = struct{}{}
 	}
 
-	if err := r.SetConfig(cfg); err != nil {
+	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
 
@@ -735,7 +735,7 @@ func filtersRemoveAll(r repo.Repo, cfg *config.Config) ([]string, error) {
 	removed := cfg.Swarm.AddrFilters
 	cfg.Swarm.AddrFilters = nil
 
-	if err := r.SetConfig(cfg); err != nil {
+	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
 
@@ -764,7 +764,7 @@ func filtersRemove(r repo.Repo, cfg *config.Config, toRemoveFilters []string) ([
 	}
 	cfg.Swarm.AddrFilters = keep
 
-	if err := r.SetConfig(cfg); err != nil {
+	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
 

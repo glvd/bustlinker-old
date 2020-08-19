@@ -51,7 +51,7 @@ func HostnameOption() ServeOption {
 			return nil, err
 		}
 
-		cfg, err := n.Repo.Config()
+		cfg, err := n.Repo.IPFSConfig()
 		if err != nil {
 			return nil, err
 		}

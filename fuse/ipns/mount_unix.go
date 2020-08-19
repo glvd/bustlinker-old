@@ -16,7 +16,7 @@ func Mount(ipfs *core.IpfsNode, ipnsmp, ipfsmp string) (mount.Mount, error) {
 		return nil, err
 	}
 
-	cfg, err := ipfs.Repo.Config()
+	cfg, err := ipfs.Repo.IPFSConfig()
 	if err != nil {
 		return nil, err
 	}
