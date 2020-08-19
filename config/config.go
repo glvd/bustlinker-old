@@ -61,10 +61,15 @@ func ToMap(conf *Config) (map[string]interface{}, error) {
 
 func InitLinkConfig(repoPath string, conf *Config) (*LinkConfig, error) {
 	var cfg LinkConfig
-	cfg.Addresses = defaultAddresses()
+	cfg.Addresses = defaultLinkAddresses()
 	return &cfg, nil
 }
 
-func defaultAddresses() []string {
-	return []string{"/ip4/0.0.0.0/tcp/4001", "/ip4/0.0.0.0/tcp/4001"}
+func defaultLinkAddresses() []string {
+	return []string{
+		"/ip4/0.0.0.0/tcp/16001",
+		"/ip6/::/tcp/16001",
+		"/ip4/0.0.0.0/udp/16001/quic",
+		"/ip6/::/udp/16001/quic",
+	}
 }
