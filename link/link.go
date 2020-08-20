@@ -74,19 +74,20 @@ func (l *link) registerHandle() {
 		reader := bufio.NewReader(stream)
 		defer stream.Close()
 		ai := peer.AddrInfo{}
+		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
 		for line, _, err := reader.ReadLine(); err == nil; {
 			err := ai.UnmarshalJSON(line)
 			if err != nil {
+				fmt.Println(err)
 				continue
 			}
 			err = l.node.PeerHost.Connect(l.ctx, ai)
 			if err != nil {
+				fmt.Println(err)
 				continue
 			}
-			fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
-			fmt.Println("connect to address", ai.String())
 		}
-
+		fmt.Println("connect to address", ai.String())
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
 		fmt.Println("link address called")
