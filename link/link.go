@@ -59,19 +59,19 @@ func (l *link) SyncPeers() {
 			for line, _, err := reader.ReadLine(); err == nil; {
 				err := ai.UnmarshalJSON(line)
 				if err != nil {
-					fmt.Println("unmarlshal json", err)
+					fmt.Println("unmarlshal json:", err)
 					continue
 				}
 				if ai.ID == l.node.Identity {
 					continue
 				}
-				//l.node.PeerHost.ConnManager().
+				fmt.Println("connect to address", ai.String())
 				err = l.node.PeerHost.Connect(l.ctx, ai)
 				if err != nil {
-					fmt.Println("connect error", err)
+					fmt.Println("connect error:", err)
 					continue
 				}
-				fmt.Println("connect to address", ai.String())
+				fmt.Println("connected to address", ai.String())
 				time.Sleep(5 * time.Second)
 			}
 
@@ -79,7 +79,20 @@ func (l *link) SyncPeers() {
 		}
 		time.Sleep(30 * time.Second)
 	}
+}
 
+func filterAddrs(addr multiaddr.Multiaddr, addrs []multiaddr.Multiaddr) []multiaddr.Multiaddr {
+	v := map[multiaddr.Multiaddr]bool{
+		addr: true,
+	}
+	for i := range addrs {
+		v[addrs[i]] = true
+	}
+	var retAddrs []multiaddr.Multiaddr
+	for i := range v {
+		retAddrs = append(retAddrs, i)
+	}
+	return retAddrs
 }
 
 func (l *link) registerHandle() {
@@ -93,7 +106,8 @@ func (l *link) registerHandle() {
 				stream.Close()
 			}
 		}()
-		l.node.Peerstore.AddAddr(stream.Conn().RemotePeer(), stream.Conn().RemoteMultiaddr(), 0)
+		addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
+		l.node.Peerstore.SetAddrs(stream.Conn().RemotePeer(), addrs, 7*24*time.Hour)
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
 			info := l.node.Peerstore.PeerInfo(pid)
