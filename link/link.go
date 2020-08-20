@@ -31,7 +31,7 @@ type link struct {
 	ctx  context.Context
 	node *core.IpfsNode
 
-	address     map[peer.ID]multiaddr.Multiaddr
+	address     map[peer.ID]peer.AddrInfo
 	addressLock *sync.RWMutex
 }
 
@@ -65,12 +65,16 @@ func (l *link) SyncPeers() {
 				if ai.ID == l.node.Identity {
 					continue
 				}
+				if l.CheckPeerAddress(ai.ID) {
+					continue
+				}
 				fmt.Println("connect to address", ai.String())
 				err = l.node.PeerHost.Connect(l.ctx, ai)
 				if err != nil {
 					fmt.Println("connect error:", err)
 					continue
 				}
+				l.AddPeerAddress(ai.ID, ai)
 				fmt.Println("connected to address", ai.String())
 				time.Sleep(5 * time.Second)
 			}
@@ -127,10 +131,17 @@ func (l *link) registerHandle() {
 	})
 }
 
-func (l *link) AddPeerAddress(id peer.ID, addrs multiaddr.Multiaddr) {
+func (l *link) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) {
 	l.addressLock.Lock()
 	l.address[id] = addrs
 	l.addressLock.Unlock()
+}
+
+func (l *link) CheckPeerAddress(id peer.ID) (b bool) {
+	l.addressLock.RLock()
+	_, b = l.address[id]
+	l.addressLock.RUnlock()
+	return
 }
 
 func (l *link) NewConn(conn net.Conn) error {
@@ -154,7 +165,7 @@ func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
 		ctx:         ctx,
 		node:        node,
-		address:     make(map[peer.ID]multiaddr.Multiaddr),
+		address:     make(map[peer.ID]peer.AddrInfo),
 		addressLock: &sync.RWMutex{},
 	}
 }
