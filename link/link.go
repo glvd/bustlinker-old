@@ -1,106 +1,99 @@
 package link
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"github.com/glvd/bustlinker/core"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/multiformats/go-multiaddr"
 	"net"
 	"sync"
 	"time"
-
-	"github.com/glvd/bustlinker/core"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/multiformats/go-multiaddr"
-	manet "github.com/multiformats/go-multiaddr-net"
 )
+
+const Version = "0.0.1"
+const LinkPeers = "Link/" + Version + "/Peers"
+const LinkAddress = "Link/" + Version + "/Address"
 
 type Linker interface {
 	Start() error
-	ListenAndServe(lis manet.Listener) error
+	ListenAndServe() error
 }
 
 type link struct {
-	ctx        context.Context
-	node       *core.IpfsNode
-	connectors sync.Map
+	ctx  context.Context
+	node *core.IpfsNode
+
+	address     map[peer.ID]multiaddr.Multiaddr
+	addressLock *sync.RWMutex
 }
 
-func (l *link) ListenAndServe(lis manet.Listener) error {
-	fmt.Println("Link server listening on", lis.Multiaddr().String())
+func (l *link) ListenAndServe() error {
+	return nil
+}
+
+func (l *link) SyncPeers() {
 	for {
-		conn, err := lis.Accept()
-		if err != nil {
-			continue
+		fmt.Println("all peers", l.node.Peerstore.Peers())
+		for _, peer := range l.node.Peerstore.PeersWithAddrs() {
+			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkPeers, LinkAddress)
+			if err != nil {
+				continue
+			}
+			addrs := l.node.Peerstore.Addrs(peer)
+			for _, addr := range addrs {
+				s.Write(addr.Bytes())
+				s.Write([]byte{'\n'})
+				fmt.Println("send address:", addr.String())
+			}
 		}
-		err = l.NewConn(conn)
-		if err == nil {
-			continue
-		}
-		//no callback closed
-		err = conn.Close()
-		if err != nil {
-			log.Errorw("accept conn error", "err", err)
-		}
+		time.Sleep(5 * time.Second)
 	}
+
+}
+
+func (l *link) registerHandle() {
+	l.node.PeerHost.SetStreamHandler(LinkPeers, func(stream network.Stream) {
+		reader := bufio.NewReader(stream)
+		defer stream.Close()
+		for line, _, err := reader.ReadLine(); err == nil; {
+			bytes, err := multiaddr.NewMultiaddrBytes(line)
+			if err != nil {
+				continue
+			}
+			fmt.Println("address", bytes.String())
+		}
+
+	})
+	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
+		stream.Conn().RemoteMultiaddr()
+	})
+}
+
+func (l *link) AddPeerAddress(id peer.ID, addrs multiaddr.Multiaddr) {
+	l.addressLock.Lock()
+	l.address[id] = addrs
+	l.addressLock.Unlock()
 }
 
 func (l *link) NewConn(conn net.Conn) error {
 	return nil
 }
 
-func (l link) Start() error {
+func (l *link) Start() error {
 	fmt.Println("Link start")
-	//api, err := coreapi.NewCoreAPI(l.node)
-	//if err != nil {
-	//	return err
-	//}
-	cma := make(chan peer.AddrInfo)
-	//peerCheck := make(map[peer.ID]bool)
-	go func() {
-		for info := range cma {
-			fmt.Println(info.String())
-		}
-	}()
-	for {
-		time.Sleep(5 * time.Second)
-		//for _, p := range l.node.Peerstore.Peers() {
-		peers, err := l.node.Routing.FindPeer(context.TODO(), "QmfSQ3g19LHDtAftSUJ5Nph6jgVxYcpDL6wpaXHQRRrqXb")
-		fmt.Println("addrs", peers)
-		if err != nil {
-			continue
-		}
-		//l.node.
-		////if !peerCheck[p] {
-		peers2 := l.node.Peerstore.Addrs(peers.ID)
-		fmt.Println(peers.ID, "addrs", peers)
-		time.Sleep(15 * time.Second)
-		for _, p2 := range peers2 {
-			relay2, _ := p2.ValueForProtocol(multiaddr.P_P2P)
-			rID2, err := peer.IDFromString(relay2)
-			if err != nil {
-				log.Debugf("failed to parse relay ID in address %s: %s", relay2, err)
-				continue
-			}
-			go func(ctx context.Context, id peer.ID) {
-				m := l.node.Peerstore.PeerInfo(id)
-				select {
-				case <-ctx.Done():
-					break
-				case cma <- m:
-				}
-			}(l.ctx, rID2)
-		}
-
-		//}
-		//}
-
-	}
+	go l.SyncPeers()
 	return nil
 }
 
 func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
-		ctx:  ctx,
-		node: node,
+		ctx:         ctx,
+		node:        node,
+		address:     make(map[peer.ID]multiaddr.Multiaddr),
+		addressLock: &sync.RWMutex{},
 	}
 }
 

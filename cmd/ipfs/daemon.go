@@ -467,53 +467,54 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 }
 
 func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
-	cfg, err := node.Repo.LinkConfig()
-	if err != nil {
-		return nil, err
-	}
-	listeners, err := sockets.TakeListeners("io.glvd.gatway")
-	if err != nil {
-		return nil, fmt.Errorf("serveLinkGateway: socket activation failed: %s", err)
-	}
-
-	listenerAddrs := make(map[string]bool, len(listeners))
-	for _, listener := range listeners {
-		listenerAddrs[string(listener.Multiaddr().Bytes())] = true
-	}
-	for _, addr := range cfg.Addresses {
-		gatewayMaddr, err := ma.NewMultiaddr(addr)
-		if err != nil {
-			return nil, fmt.Errorf("serveLinkGateway: invalid gateway address: %q (err: %s)", addr, err)
-		}
-
-		if listenerAddrs[string(gatewayMaddr.Bytes())] {
-			continue
-		}
-
-		gwLis, err := manet.Listen(gatewayMaddr)
-		if err != nil {
-			return nil, fmt.Errorf("serveLinkGateway: manet.Listen(%s) failed: %s", gatewayMaddr, err)
-		}
-		listenerAddrs[string(gatewayMaddr.Bytes())] = true
-		listeners = append(listeners, gwLis)
-	}
+	//cfg, err := node.Repo.LinkConfig()
+	//if err != nil {
+	//	return nil, err
+	//}
+	//listeners, err := sockets.TakeListeners("io.glvd.gatway")
+	//if err != nil {
+	//	return nil, fmt.Errorf("serveLinkGateway: socket activation failed: %s", err)
+	//}
+	//
+	//listenerAddrs := make(map[string]bool, len(listeners))
+	//for _, listener := range listeners {
+	//	listenerAddrs[string(listener.Multiaddr().Bytes())] = true
+	//}
+	//for _, addr := range cfg.Addresses {
+	//	gatewayMaddr, err := ma.NewMultiaddr(addr)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("serveLinkGateway: invalid gateway address: %q (err: %s)", addr, err)
+	//	}
+	//
+	//	if listenerAddrs[string(gatewayMaddr.Bytes())] {
+	//		continue
+	//	}
+	//
+	//	gwLis, err := manet.Listen(gatewayMaddr)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("serveLinkGateway: manet.Listen(%s) failed: %s", gatewayMaddr, err)
+	//	}
+	//	listenerAddrs[string(gatewayMaddr.Bytes())] = true
+	//	listeners = append(listeners, gwLis)
+	//}
 	lnk := link.New(req.Context, node)
 
-	errc := make(chan error)
-	var wg sync.WaitGroup
-	for _, lis := range listeners {
-		wg.Add(1)
-		go func(lis manet.Listener) {
-			defer wg.Done()
-			errc <- lnk.ListenAndServe(lis)
-		}(lis)
-	}
+	//errc := make(chan error)
+	//var wg sync.WaitGroup
+	//for _, lis := range listeners {
+	//	wg.Add(1)
+	//	go func(lis manet.Listener) {
+	//		defer wg.Done()
+	//		errc <- lnk.ListenAndServe(lis)
+	//	}(lis)
+	//}
+	//
+	//go func() {
+	//	wg.Wait()
+	//	close(errc)
+	//}()
 
-	go func() {
-		wg.Wait()
-		close(errc)
-	}()
-	return errc, nil
+	return nil, lnk.Start()
 }
 
 func servePprof(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, error) {
