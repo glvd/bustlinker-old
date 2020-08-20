@@ -104,11 +104,11 @@ func (l *link) registerHandle() {
 		fmt.Println("link peer called")
 		var err error
 		defer func() {
-			if err != nil {
-				stream.Reset()
-			} else {
-				stream.Close()
-			}
+			//if err != nil {
+			//	stream.Reset()
+			//} else {
+			stream.Close()
+			//}
 		}()
 		addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
 		l.node.Peerstore.SetAddrs(stream.Conn().RemotePeer(), addrs, 7*24*time.Hour)
