@@ -64,8 +64,9 @@ func (l *link) SyncPeers() {
 			fmt.Println("send address:", info.String())
 
 			s.Close()
+			time.Sleep(15 * time.Second)
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 
 }
@@ -76,6 +77,7 @@ func (l *link) registerHandle() {
 		reader := bufio.NewReader(stream)
 		defer stream.Close()
 		ai := peer.AddrInfo{}
+		l.node.Peerstore.AddAddr(stream.Conn().RemotePeer(), stream.Conn().RemoteMultiaddr(), 0)
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
 		for line, _, err := reader.ReadLine(); err == nil; {
 			err := ai.UnmarshalJSON(line)
