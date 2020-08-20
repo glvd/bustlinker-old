@@ -44,26 +44,35 @@ func (l *link) SyncPeers() {
 	for {
 		fmt.Println("all peers", l.node.Peerstore.PeersWithAddrs())
 
-		for _, peer := range l.node.Peerstore.PeersWithAddrs() {
-			if l.node.Identity == peer {
+		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
+			if l.node.Identity == pid {
 				continue
 			}
-			//fmt.Println(l.node.Peerstore.AddProtocols(peer, LinkAddress, LinkPeers))
-			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkPeers)
+			//fmt.Println(l.node.Peerstore.AddProtocols(pid, LinkAddress, LinkPeers))
+			s, err := l.node.PeerHost.NewStream(l.ctx, pid, LinkPeers)
 			if err != nil {
 				fmt.Println("found error:", err)
 				continue
 			}
-			info := l.node.Peerstore.PeerInfo(peer)
-			json, err := info.MarshalJSON()
-			if err != nil {
-				continue
+			reader := bufio.NewReader(s)
+			ai := peer.AddrInfo{}
+			for line, _, err := reader.ReadLine(); err == nil; {
+				err := ai.UnmarshalJSON(line)
+				if err != nil {
+					fmt.Println("unmarlshal json", err)
+					continue
+				}
+				if ai.ID == l.node.Identity {
+					continue
+				}
+				err = l.node.PeerHost.Connect(l.ctx, ai)
+				if err != nil {
+					fmt.Println("connect error", err)
+					continue
+				}
+				time.Sleep(5 * time.Second)
 			}
-			s.Write(json)
-			s.Write([]byte{'\n'})
-			fmt.Println("send address:", info.String())
 
-			s.Close()
 			time.Sleep(15 * time.Second)
 		}
 		time.Sleep(30 * time.Second)
@@ -74,26 +83,28 @@ func (l *link) SyncPeers() {
 func (l *link) registerHandle() {
 	l.node.PeerHost.SetStreamHandler(LinkPeers, func(stream network.Stream) {
 		fmt.Println("link peer called")
-		reader := bufio.NewReader(stream)
-		defer stream.Close()
+		var err error
+		defer func() {
+			if err != nil {
+				stream.Reset()
+			} else {
+				stream.Close()
+			}
+		}()
 		ai := peer.AddrInfo{}
 		l.node.Peerstore.AddAddr(stream.Conn().RemotePeer(), stream.Conn().RemoteMultiaddr(), 0)
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
-		for line, _, err := reader.ReadLine(); err == nil; {
-			err := ai.UnmarshalJSON(line)
+		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
+			info := l.node.Peerstore.PeerInfo(pid)
+			json, _ := info.MarshalJSON()
+			_, err = stream.Write(json)
+			_, err = stream.Write([]byte{'\n'})
 			if err != nil {
-				fmt.Println(err)
-				continue
+				return
 			}
-			if ai.ID == l.node.Identity {
-				continue
-			}
-			err = l.node.PeerHost.Connect(l.ctx, ai)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
+			fmt.Println("send address:", info.String())
 		}
+
 		fmt.Println("connect to address", ai.String())
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
