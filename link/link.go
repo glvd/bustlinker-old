@@ -14,8 +14,13 @@ import (
 )
 
 const Version = "0.0.1"
-const LinkPeers = "Link/" + Version + "/Peers"
-const LinkAddress = "Link/" + Version + "/Address"
+const LinkPeers = "/link" + "/peers/" + Version
+const LinkAddress = "/link" + "/address/" + Version
+
+var protocols = []string{
+	LinkPeers,
+	LinkAddress,
+}
 
 type Linker interface {
 	Start() error
@@ -35,21 +40,27 @@ func (l *link) ListenAndServe() error {
 }
 
 func (l *link) SyncPeers() {
-
+	fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
 	for {
 		fmt.Println("all peers", l.node.Peerstore.PeersWithAddrs())
+
 		for _, peer := range l.node.Peerstore.PeersWithAddrs() {
-			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkAddress)
+
+			//fmt.Println(l.node.Peerstore.AddProtocols(peer, LinkAddress, LinkPeers))
+			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkPeers)
 			if err != nil {
-				fmt.Println("found error", err)
+				fmt.Println("found error:", err)
 				continue
 			}
-			addrs := l.node.Peerstore.Addrs(peer)
-			for _, addr := range addrs {
-				s.Write(addr.Bytes())
-				s.Write([]byte{'\n'})
-				fmt.Println("send address:", addr.String())
+			info := l.node.Peerstore.PeerInfo(peer)
+			json, err := info.MarshalJSON()
+			if err != nil {
+				continue
 			}
+			s.Write(json)
+			s.Write([]byte{'\n'})
+			fmt.Println("send address:", info.String())
+
 			s.Close()
 		}
 		time.Sleep(5 * time.Second)
@@ -59,19 +70,27 @@ func (l *link) SyncPeers() {
 
 func (l *link) registerHandle() {
 	l.node.PeerHost.SetStreamHandler(LinkPeers, func(stream network.Stream) {
+		fmt.Println("link peer called")
 		reader := bufio.NewReader(stream)
 		defer stream.Close()
+		ai := peer.AddrInfo{}
 		for line, _, err := reader.ReadLine(); err == nil; {
-			bytes, err := multiaddr.NewMultiaddrBytes(line)
+			err := ai.UnmarshalJSON(line)
 			if err != nil {
 				continue
 			}
-			fmt.Println("address", bytes.String())
+			err = l.node.PeerHost.Connect(l.ctx, ai)
+			if err != nil {
+				continue
+			}
+			fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
+			fmt.Println("connect to address", ai.String())
 		}
 
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
-		stream.Conn().RemoteMultiaddr()
+		fmt.Println("link address called")
+		fmt.Println(stream.Conn().RemoteMultiaddr())
 	})
 }
 
@@ -87,6 +106,13 @@ func (l *link) NewConn(conn net.Conn) error {
 
 func (l *link) Start() error {
 	fmt.Println("Link start")
+	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
+	//fmt.Println(l.node.PeerHost.Peerstore().GetProtocols(l.node.Identity))
+	//if err := l.node.PeerHost.Peerstore().AddProtocols(l.node.Identity, protocols...); err != nil {
+	//	return err
+	//}
+	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
+	l.registerHandle()
 	go l.SyncPeers()
 	return nil
 }
