@@ -45,7 +45,9 @@ func (l *link) SyncPeers() {
 		fmt.Println("all peers", l.node.Peerstore.PeersWithAddrs())
 
 		for _, peer := range l.node.Peerstore.PeersWithAddrs() {
-
+			if l.node.Identity == peer {
+				continue
+			}
 			//fmt.Println(l.node.Peerstore.AddProtocols(peer, LinkAddress, LinkPeers))
 			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkPeers)
 			if err != nil {
@@ -79,6 +81,9 @@ func (l *link) registerHandle() {
 			err := ai.UnmarshalJSON(line)
 			if err != nil {
 				fmt.Println(err)
+				continue
+			}
+			if ai.ID == l.node.Identity {
 				continue
 			}
 			err = l.node.PeerHost.Connect(l.ctx, ai)
