@@ -110,6 +110,10 @@ in the bootstrap list).
 	},
 }
 
+var DefaultBootstrapAddresses = []string{
+	//todo:add some bootstrap address
+}
+
 var bootstrapAddDefaultCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
 		Tagline: "Add default peers to the bootstrap list.",
@@ -133,7 +137,7 @@ in the bootstrap list).`,
 			return err
 		}
 
-		added, err := bootstrapAdd(r, cfg, config.DefaultBootstrapAddresses)
+		added, err := bootstrapAdd(r, cfg, DefaultBootstrapAddresses)
 		if err != nil {
 			return err
 		}

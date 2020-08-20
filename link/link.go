@@ -35,11 +35,13 @@ func (l *link) ListenAndServe() error {
 }
 
 func (l *link) SyncPeers() {
+
 	for {
-		fmt.Println("all peers", l.node.Peerstore.Peers())
+		fmt.Println("all peers", l.node.Peerstore.PeersWithAddrs())
 		for _, peer := range l.node.Peerstore.PeersWithAddrs() {
-			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkPeers, LinkAddress)
+			s, err := l.node.PeerHost.NewStream(l.ctx, peer, LinkAddress)
 			if err != nil {
+				fmt.Println("found error", err)
 				continue
 			}
 			addrs := l.node.Peerstore.Addrs(peer)
@@ -48,6 +50,7 @@ func (l *link) SyncPeers() {
 				s.Write([]byte{'\n'})
 				fmt.Println("send address:", addr.String())
 			}
+			s.Close()
 		}
 		time.Sleep(5 * time.Second)
 	}
