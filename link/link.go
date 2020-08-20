@@ -65,11 +65,13 @@ func (l *link) SyncPeers() {
 				if ai.ID == l.node.Identity {
 					continue
 				}
+				//l.node.PeerHost.ConnManager().
 				err = l.node.PeerHost.Connect(l.ctx, ai)
 				if err != nil {
 					fmt.Println("connect error", err)
 					continue
 				}
+				fmt.Println("connect to address", ai.String())
 				time.Sleep(5 * time.Second)
 			}
 
@@ -91,7 +93,6 @@ func (l *link) registerHandle() {
 				stream.Close()
 			}
 		}()
-		ai := peer.AddrInfo{}
 		l.node.Peerstore.AddAddr(stream.Conn().RemotePeer(), stream.Conn().RemoteMultiaddr(), 0)
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
@@ -105,7 +106,6 @@ func (l *link) registerHandle() {
 			fmt.Println("send address:", info.String())
 		}
 
-		fmt.Println("connect to address", ai.String())
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
 		fmt.Println("link address called")
