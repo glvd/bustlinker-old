@@ -24,6 +24,8 @@ var protocols = []string{
 	LinkAddress,
 }
 
+var NewLine = []byte{'\n'}
+
 type Linker interface {
 	Start() error
 	ListenAndServe() error
@@ -116,13 +118,7 @@ func (l *link) registerHandle() {
 	l.node.PeerHost.SetStreamHandler(LinkPeers, func(stream network.Stream) {
 		fmt.Println("link peer called")
 		var err error
-		defer func() {
-			//if err != nil {
-			//	stream.Reset()
-			//} else {
-			//stream.Close()
-			//}
-		}()
+		defer stream.Close()
 		addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
 		l.node.Peerstore.SetAddrs(stream.Conn().RemotePeer(), addrs, 7*24*time.Hour)
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
@@ -130,10 +126,10 @@ func (l *link) registerHandle() {
 			info := l.node.Peerstore.PeerInfo(pid)
 			json, _ := info.MarshalJSON()
 			_, err = stream.Write(json)
-			//_, err = stream.Write([]byte{'\n'})
 			if err != nil {
 				return
 			}
+			_, _ = stream.Write(NewLine)
 			fmt.Println("send addresses:", info.String())
 		}
 
@@ -167,11 +163,11 @@ func (l *link) GetStream(id peer.ID) (network.Stream, error) {
 	//if b {
 	//	return s, nil
 	//}
-	s, err = l.node.PeerHost.Network().NewStream(l.ctx, id)
+	s, err = l.node.PeerHost.NewStream(l.ctx, id, LinkPeers)
 	if err != nil {
 		return nil, err
 	}
-	s.SetProtocol(LinkPeers)
+	//s.SetProtocol(LinkPeers)
 	//l.streamLock.Lock()
 	//_, b = l.streams[id]
 	//if !b {
@@ -218,7 +214,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 	for line, _, err := reader.ReadLine(); err == nil; {
 		err := ai.UnmarshalJSON(line)
 		if err != nil {
-			fmt.Println("unmarlshal json:", err)
+			fmt.Println("unmarlshal json:", string(line), err)
 			continue
 		}
 		if ai.ID == l.node.Identity {
