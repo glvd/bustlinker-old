@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/glvd/accipfs/core"
+	"github.com/portmapping/go-reuse"
 	"net"
 	"time"
 
@@ -171,8 +172,8 @@ func (n *node) Verify() bool {
 }
 
 // CoreNode ...
-func CoreNode(conn net.Conn, local core.SafeLocalData) (core.Node, error) {
-	n := defaultAPINode(conn, local, 30*time.Second)
+func CoreNode(id string, conn net.Conn) (core.Node, error) {
+	n := defaultAPINode(id, conn, 30*time.Second)
 	netAddr, err := mnet.FromNetAddr(conn.RemoteAddr())
 	if err != nil {
 		return nil, err
@@ -224,35 +225,34 @@ func MultiDial(addr ma.Multiaddr, bind int) (net.Conn, error) {
 }
 
 // ConnectNode ...
-func ConnectNode(addr ma.Multiaddr, bind int, local core.SafeLocalData) (core.Node, error) {
-	localAddr, err := ma.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", bind))
+func ConnectNode(id string, laddr, raddr ma.Multiaddr) (scdt.Connection, error) {
+	_, lip, err := mnet.DialArgs(laddr)
 	if err != nil {
 		return nil, err
 	}
-	d := mnet.Dialer{
-		Dialer: net.Dialer{
-			Timeout: 5 * time.Second,
-		},
-		LocalAddr: localAddr,
-	}
-	conn, err := d.Dial(addr)
+
+	nw, ip, err := mnet.DialArgs(raddr)
 	if err != nil {
 		return nil, err
 	}
-	n := defaultAPINode(conn, local, 0)
-	n.AppendAddr(addr)
-	return n, nil
+	conn, err := reuse.DialTimeOut(nw, lip, ip, 5*time.Second)
+	if err != nil {
+		return nil, err
+	}
+	return scdt.Connect(id, conn), nil
 }
 
-func defaultAPINode(c net.Conn, local core.SafeLocalData, duration time.Duration) *node {
-	conn := scdt.Connect(c, func(c *scdt.Config) {
+func AcceptNode(id string, conn net.Conn) (scdt.Connection, error) {
+	return scdt.Accept(id, conn), nil
+}
+
+func defaultAPINode(id string, c net.Conn, duration time.Duration) *node {
+	conn := scdt.Connect(id, c, func(c *scdt.Config) {
 		c.Timeout = duration
-		c.CustomIDer = func() string {
-			return local.Data().Node.ID
-		}
 	})
+
 	n := &node{
-		local:      local,
+		//local:      local,
 		Connection: conn,
 	}
 
