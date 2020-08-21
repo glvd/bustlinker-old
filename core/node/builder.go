@@ -123,6 +123,10 @@ func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *ipfsconfig.Config
 	), conf
 }
 
+var DefaultBootstrapAddresses = []string{
+	//todo:add some bootstrap address
+}
+
 func defaultRepo(dstore repo.Datastore) (repo.Repo, error) {
 	c := ipfsconfig.Config{}
 	priv, pub, err := ci.GenerateKeyPairWithReader(ci.RSA, 2048, rand.Reader)
@@ -140,7 +144,7 @@ func defaultRepo(dstore repo.Datastore) (repo.Repo, error) {
 		return nil, err
 	}
 
-	c.Bootstrap = ipfsconfig.DefaultBootstrapAddresses
+	c.Bootstrap = DefaultBootstrapAddresses
 	c.Addresses.Swarm = []string{"/ip4/0.0.0.0/tcp/4001", "/ip4/0.0.0.0/udp/4001/quic"}
 	c.Identity.PeerID = pid.Pretty()
 	c.Identity.PrivKey = base64.StdEncoding.EncodeToString(privkeyb)
