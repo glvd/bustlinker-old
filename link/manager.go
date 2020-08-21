@@ -246,7 +246,7 @@ func (m *manager) LoadNode() error {
 			return true
 		}
 		for multiaddr := range ninfo.Addrs {
-			fmt.Println("connect node with address:", multiaddr.String())
+			fmt.Println("connect node with addresses:", multiaddr.String())
 			connectNode, err := MultiDial(multiaddr, 0)
 			if err != nil {
 				continue

@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
+	"github.com/godcong/scdt"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/multiformats/go-multiaddr"
-	"net"
+	manet "github.com/multiformats/go-multiaddr-net"
+	"github.com/portmapping/go-reuse"
 	"sync"
 	"time"
 )
@@ -31,8 +33,13 @@ type Linker interface {
 type link struct {
 	ctx         context.Context
 	node        *core.IpfsNode
-	address     map[peer.ID]peer.AddrInfo
+	addresses   map[peer.ID]peer.AddrInfo
 	addressLock *sync.RWMutex
+
+	streams    map[peer.ID]network.Stream
+	streamLock *sync.RWMutex
+
+	scdt.Listener
 }
 
 func (l *link) ListenAndServe() error {
@@ -40,21 +47,48 @@ func (l *link) ListenAndServe() error {
 }
 
 func (l *link) SyncPeers() {
+	listener, err := scdt.NewListener(l.node.Identity.String())
+	if err != nil {
+		return
+	}
+	l.Listener = listener
+	config, err := l.node.Repo.LinkConfig()
+	if err != nil {
+		return
+	}
 	api, err := coreapi.NewCoreAPI(l.node)
 	if err != nil {
 		return
 	}
+
+	for _, address := range config.Addresses {
+		ma, err := multiaddr.NewMultiaddr(address)
+		if err != nil {
+			continue
+		}
+		nw, ip, err := manet.DialArgs(ma)
+		if err != nil {
+			return
+		}
+		listen, err := reuse.Listen(nw, ip)
+		if err != nil {
+			return
+		}
+		l.Listener.Listen(nw, listen)
+	}
+
 	for {
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
 			if l.node.Identity == pid {
 				continue
 			}
 			//fmt.Println(l.node.Peerstore.AddProtocols(pid, LinkAddress, LinkPeers))
-			s, err := l.node.PeerHost.NewStream(l.ctx, pid, LinkPeers)
+			s, err := l.GetStream(pid)
 			if err != nil {
 				fmt.Println("found error:", err)
 				continue
 			}
+			s.SetProtocol(LinkPeers)
 			reader := bufio.NewReader(s)
 			ai := peer.AddrInfo{}
 			for line, _, err := reader.ReadLine(); err == nil; {
@@ -69,14 +103,14 @@ func (l *link) SyncPeers() {
 				if l.CheckPeerAddress(ai.ID) {
 					continue
 				}
-				fmt.Println("connect to address", ai.String())
+				fmt.Println("connect to addresses", ai.String())
 				err = api.Swarm().Connect(l.ctx, ai)
 				if err != nil {
 					fmt.Println("connect error:", err)
 					continue
 				}
 				l.AddPeerAddress(ai.ID, ai)
-				fmt.Println("connected to address", ai.String())
+				fmt.Println("connected to addresses", ai.String())
 			}
 		}
 		time.Sleep(15 * time.Second)
@@ -105,7 +139,7 @@ func (l *link) registerHandle() {
 			//if err != nil {
 			//	stream.Reset()
 			//} else {
-			stream.Close()
+			//stream.Close()
 			//}
 		}()
 		addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
@@ -119,30 +153,60 @@ func (l *link) registerHandle() {
 			if err != nil {
 				return
 			}
-			fmt.Println("send address:", info.String())
+			fmt.Println("send addresses:", info.String())
 		}
 
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
-		fmt.Println("link address called")
+		fmt.Println("link addresses called")
 		fmt.Println(stream.Conn().RemoteMultiaddr())
 	})
 }
 
 func (l *link) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) {
 	l.addressLock.Lock()
-	l.address[id] = addrs
+	l.addresses[id] = addrs
 	l.addressLock.Unlock()
+}
+
+func (l *link) AddAddress(id peer.ID, addrs peer.AddrInfo) {
+	l.addressLock.Lock()
+	l.addresses[id] = addrs
+	l.addressLock.Unlock()
+}
+
+func (l *link) GetStream(id peer.ID) (network.Stream, error) {
+	var s network.Stream
+	var b bool
+	var err error
+	l.streamLock.RLock()
+	s, b = l.streams[id]
+	l.streamLock.RUnlock()
+
+	if b {
+		return s, nil
+	}
+	s, err = l.node.PeerHost.NewStream(l.ctx, id, LinkPeers)
+	if err != nil {
+		return nil, err
+	}
+	l.streamLock.Lock()
+	_, b = l.streams[id]
+	if !b {
+		l.streams[id] = s
+	}
+	l.streamLock.Unlock()
+	return s, nil
 }
 
 func (l *link) CheckPeerAddress(id peer.ID) (b bool) {
 	l.addressLock.RLock()
-	_, b = l.address[id]
+	_, b = l.addresses[id]
 	l.addressLock.RUnlock()
 	return
 }
 
-func (l *link) NewConn(conn net.Conn) error {
+func (l *link) Conn(conn scdt.Connection) error {
 	return nil
 }
 
@@ -163,8 +227,11 @@ func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
 		ctx:         ctx,
 		node:        node,
-		address:     make(map[peer.ID]peer.AddrInfo),
+		addresses:   make(map[peer.ID]peer.AddrInfo),
 		addressLock: &sync.RWMutex{},
+		streams:     make(map[peer.ID]network.Stream),
+		streamLock:  &sync.RWMutex{},
+		//Listener:    ,
 	}
 }
 

@@ -12,7 +12,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.1.0
 	github.com/glvd/accipfs v0.0.1
 	github.com/go-bindata/go-bindata/v3 v3.1.3
-	github.com/godcong/scdt v0.0.20
+	github.com/godcong/scdt v0.0.23
 	github.com/gogo/protobuf v1.3.1
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/hashicorp/golang-lru v0.5.4
@@ -96,6 +96,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/panjf2000/ants/v2 v2.4.1
 	github.com/pkg/errors v0.9.1
+	github.com/portmapping/go-reuse v0.0.3
 	github.com/prometheus/client_golang v1.6.0
 	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d
@@ -107,7 +108,7 @@ require (
 	go.uber.org/fx v1.12.0
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
-	golang.org/x/sys v0.0.0-20200727154430-2d971f7391a4
+	golang.org/x/sys v0.0.0-20200820212457-1fb795427249
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 )
 
