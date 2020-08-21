@@ -132,7 +132,6 @@ func (l *link) registerHandle() {
 			_, _ = stream.Write(NewLine)
 			fmt.Println("send addresses:", info.String())
 		}
-
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
 		fmt.Println("link addresses called")
@@ -215,13 +214,13 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 		err := ai.UnmarshalJSON(line)
 		if err != nil {
 			fmt.Println("unmarlshal json:", string(line), err)
-			continue
+			return
 		}
 		if ai.ID == l.node.Identity {
-			continue
+			return
 		}
 		if l.CheckPeerAddress(ai.ID) {
-			continue
+			return
 		}
 		fmt.Println("received addresses", ai.String())
 		//err = api.Swarm().Connect(l.ctx, ai)
