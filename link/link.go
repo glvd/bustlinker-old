@@ -216,13 +216,14 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 			fmt.Println("unmarlshal json:", string(line), err)
 			return
 		}
+		fmt.Println("received addresses", ai.String())
 		if ai.ID == l.node.Identity {
-			return
+			continue
 		}
 		if l.CheckPeerAddress(ai.ID) {
-			return
+			continue
 		}
-		fmt.Println("received addresses", ai.String())
+
 		//err = api.Swarm().Connect(l.ctx, ai)
 		//if err != nil {
 		//	fmt.Println("connect error:", err)
