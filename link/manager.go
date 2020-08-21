@@ -327,7 +327,7 @@ func (m *manager) loop() {
 
 // newConn ...
 func (m *manager) newConn(c net.Conn) (core.Node, error) {
-	acceptNode, err := CoreNode(c, m.local)
+	acceptNode, err := CoreNode("", c)
 	if err != nil {
 		return nil, err
 	}
@@ -463,22 +463,24 @@ func (m *manager) syncPeers(wg *sync.WaitGroup, n core.Node) {
 }
 
 func decodeNode(m core.NodeManager, b []byte, api core.API) error {
-	nodes := map[string]jsonNode{}
-	err := json.Unmarshal(b, &nodes)
-	if err != nil {
-		return err
-	}
-
-	for _, nodes := range nodes {
-		for _, addr := range nodes.Addrs {
-			connectNode, err := ConnectNode(addr, 0, m.Local())
-			if err != nil {
-				continue
-			}
-			m.Push(connectNode)
-			break
-		}
-	}
+	//nodes := map[string]jsonNode{}
+	//err := json.Unmarshal(b, &nodes)
+	//if err != nil {
+	//	return err
+	//}
+	//laddr ,_:= ma.NewMultiaddr("")
+	//
+	//for _, nodes := range nodes {
+	//	for _, addr := range nodes.Addrs {
+	//		//connectNode, err := ConnectNode("", laddr, addr)
+	//		//if err != nil {
+	//		//	continue
+	//		//}
+	//		//CoreNode("",connectNode)
+	//		//m.Push(connectNode)
+	//		break
+	//	}
+	//}
 	return nil
 }
 

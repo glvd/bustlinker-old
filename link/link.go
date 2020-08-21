@@ -1,11 +1,9 @@
 package link
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"github.com/glvd/bustlinker/core"
-	"github.com/glvd/bustlinker/core/coreapi"
 	"github.com/godcong/scdt"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -56,10 +54,10 @@ func (l *link) SyncPeers() {
 	if err != nil {
 		return
 	}
-	api, err := coreapi.NewCoreAPI(l.node)
-	if err != nil {
-		return
-	}
+	//api, err := coreapi.NewCoreAPI(l.node)
+	//if err != nil {
+	//	return
+	//}
 
 	for _, address := range config.Addresses {
 		ma, err := multiaddr.NewMultiaddr(address)
@@ -77,44 +75,44 @@ func (l *link) SyncPeers() {
 		l.Listener.Listen(nw, listen)
 	}
 
-	for {
-		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
-			if l.node.Identity == pid {
-				continue
-			}
-			//fmt.Println(l.node.Peerstore.AddProtocols(pid, LinkAddress, LinkPeers))
-			s, err := l.GetStream(pid)
-			if err != nil {
-				fmt.Println("found error:", err)
-				continue
-			}
-			s.SetProtocol(LinkPeers)
-			reader := bufio.NewReader(s)
-			ai := peer.AddrInfo{}
-			for line, _, err := reader.ReadLine(); err == nil; {
-				err := ai.UnmarshalJSON(line)
-				if err != nil {
-					fmt.Println("unmarlshal json:", err)
-					continue
-				}
-				if ai.ID == l.node.Identity {
-					continue
-				}
-				if l.CheckPeerAddress(ai.ID) {
-					continue
-				}
-				fmt.Println("connect to addresses", ai.String())
-				err = api.Swarm().Connect(l.ctx, ai)
-				if err != nil {
-					fmt.Println("connect error:", err)
-					continue
-				}
-				l.AddPeerAddress(ai.ID, ai)
-				fmt.Println("connected to addresses", ai.String())
-			}
-		}
-		time.Sleep(15 * time.Second)
-	}
+	//for {
+	//	for _, pid := range l.node.Peerstore.PeersWithAddrs() {
+	//		if l.node.Identity == pid {
+	//			continue
+	//		}
+	//		//fmt.Println(l.node.Peerstore.AddProtocols(pid, LinkAddress, LinkPeers))
+	//		s, err := l.GetStream(pid)
+	//		if err != nil {
+	//			fmt.Println("found error:", err)
+	//			continue
+	//		}
+	//		s.SetProtocol(LinkPeers)
+	//		reader := bufio.NewReader(s)
+	//		ai := peer.AddrInfo{}
+	//		for line, _, err := reader.ReadLine(); err == nil; {
+	//			err := ai.UnmarshalJSON(line)
+	//			if err != nil {
+	//				fmt.Println("unmarlshal json:", err)
+	//				continue
+	//			}
+	//			if ai.ID == l.node.Identity {
+	//				continue
+	//			}
+	//			if l.CheckPeerAddress(ai.ID) {
+	//				continue
+	//			}
+	//			fmt.Println("connect to addresses", ai.String())
+	//			err = api.Swarm().Connect(l.ctx, ai)
+	//			if err != nil {
+	//				fmt.Println("connect error:", err)
+	//				continue
+	//			}
+	//			l.AddPeerAddress(ai.ID, ai)
+	//			fmt.Println("connected to addresses", ai.String())
+	//		}
+	//	}
+	//	time.Sleep(15 * time.Second)
+	//}
 }
 
 func filterAddrs(addr multiaddr.Multiaddr, addrs []multiaddr.Multiaddr) []multiaddr.Multiaddr {
