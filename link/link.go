@@ -1,6 +1,7 @@
 package link
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/glvd/bustlinker/core"
@@ -34,8 +35,8 @@ type link struct {
 	addresses   map[peer.ID]peer.AddrInfo
 	addressLock *sync.RWMutex
 
-	streams    map[peer.ID]network.Stream
-	streamLock *sync.RWMutex
+	//streams    map[peer.ID]network.Stream
+	//streamLock *sync.RWMutex
 
 	scdt.Listener
 }
@@ -44,7 +45,7 @@ func (l *link) ListenAndServe() error {
 	return nil
 }
 
-func (l *link) SyncPeers() {
+func (l *link) syncPeers() {
 	listener, err := scdt.NewListener(l.node.Identity.String())
 	if err != nil {
 		return
@@ -75,44 +76,24 @@ func (l *link) SyncPeers() {
 		l.Listener.Listen(nw, listen)
 	}
 
-	//for {
-	//	for _, pid := range l.node.Peerstore.PeersWithAddrs() {
-	//		if l.node.Identity == pid {
-	//			continue
-	//		}
-	//		//fmt.Println(l.node.Peerstore.AddProtocols(pid, LinkAddress, LinkPeers))
-	//		s, err := l.GetStream(pid)
-	//		if err != nil {
-	//			fmt.Println("found error:", err)
-	//			continue
-	//		}
-	//		s.SetProtocol(LinkPeers)
-	//		reader := bufio.NewReader(s)
-	//		ai := peer.AddrInfo{}
-	//		for line, _, err := reader.ReadLine(); err == nil; {
-	//			err := ai.UnmarshalJSON(line)
-	//			if err != nil {
-	//				fmt.Println("unmarlshal json:", err)
-	//				continue
-	//			}
-	//			if ai.ID == l.node.Identity {
-	//				continue
-	//			}
-	//			if l.CheckPeerAddress(ai.ID) {
-	//				continue
-	//			}
-	//			fmt.Println("connect to addresses", ai.String())
-	//			err = api.Swarm().Connect(l.ctx, ai)
-	//			if err != nil {
-	//				fmt.Println("connect error:", err)
-	//				continue
-	//			}
-	//			l.AddPeerAddress(ai.ID, ai)
-	//			fmt.Println("connected to addresses", ai.String())
-	//		}
-	//	}
-	//	time.Sleep(15 * time.Second)
+}
+
+func (l *link) SyncPeers() {
+	//api, err := coreapi.NewCoreAPI(l.node)
+	//if err != nil {
+	//	return
 	//}
+
+	for {
+		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
+			if l.node.Identity == pid {
+				continue
+			}
+			go l.getPeerAddress(pid)
+
+		}
+		time.Sleep(5 * time.Second)
+	}
 }
 
 func filterAddrs(addr multiaddr.Multiaddr, addrs []multiaddr.Multiaddr) []multiaddr.Multiaddr {
@@ -175,25 +156,26 @@ func (l *link) AddAddress(id peer.ID, addrs peer.AddrInfo) {
 
 func (l *link) GetStream(id peer.ID) (network.Stream, error) {
 	var s network.Stream
-	var b bool
+	//var b bool
 	var err error
-	l.streamLock.RLock()
-	s, b = l.streams[id]
-	l.streamLock.RUnlock()
-
-	if b {
-		return s, nil
-	}
-	s, err = l.node.PeerHost.NewStream(l.ctx, id, LinkPeers)
+	//l.streamLock.RLock()
+	//s, b = l.streams[id]
+	//l.streamLock.RUnlock()
+	//
+	//if b {
+	//	return s, nil
+	//}
+	s, err = l.node.PeerHost.Network().NewStream(l.ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	l.streamLock.Lock()
-	_, b = l.streams[id]
-	if !b {
-		l.streams[id] = s
-	}
-	l.streamLock.Unlock()
+	s.SetProtocol(LinkPeers)
+	//l.streamLock.Lock()
+	//_, b = l.streams[id]
+	//if !b {
+	//	l.streams[id] = s
+	//}
+	//l.streamLock.Unlock()
 	return s, nil
 }
 
@@ -221,14 +203,46 @@ func (l *link) Start() error {
 	return nil
 }
 
+func (l *link) getPeerAddress(pid peer.ID) {
+	s, err := l.GetStream(pid)
+	if err != nil {
+		fmt.Println("found error:", err)
+		return
+	}
+	defer s.Close()
+	reader := bufio.NewReader(s)
+	ai := peer.AddrInfo{}
+	for line, _, err := reader.ReadLine(); err == nil; {
+		err := ai.UnmarshalJSON(line)
+		if err != nil {
+			fmt.Println("unmarlshal json:", err)
+			continue
+		}
+		if ai.ID == l.node.Identity {
+			continue
+		}
+		if l.CheckPeerAddress(ai.ID) {
+			continue
+		}
+		fmt.Println("received addresses", ai.String())
+		//err = api.Swarm().Connect(l.ctx, ai)
+		//if err != nil {
+		//	fmt.Println("connect error:", err)
+		//	continue
+		//}
+		l.AddPeerAddress(ai.ID, ai)
+		//fmt.Println("connected to addresses", ai.String())
+	}
+}
+
 func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
 		ctx:         ctx,
 		node:        node,
 		addresses:   make(map[peer.ID]peer.AddrInfo),
 		addressLock: &sync.RWMutex{},
-		streams:     make(map[peer.ID]network.Stream),
-		streamLock:  &sync.RWMutex{},
+		//streams:     make(map[peer.ID]network.Stream),
+		//streamLock:  &sync.RWMutex{},
 		//Listener:    ,
 	}
 }
