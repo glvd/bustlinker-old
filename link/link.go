@@ -85,14 +85,16 @@ func (l *link) SyncPeers() {
 	//}
 
 	for {
+		wg := &sync.WaitGroup{}
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
 			if l.node.Identity == pid {
 				continue
 			}
-			go l.getPeerAddress(pid)
-
+			wg.Add(1)
+			go l.getPeerAddress(wg, pid)
 		}
-		time.Sleep(5 * time.Second)
+		wg.Wait()
+		time.Sleep(15 * time.Second)
 	}
 }
 
@@ -128,7 +130,7 @@ func (l *link) registerHandle() {
 			info := l.node.Peerstore.PeerInfo(pid)
 			json, _ := info.MarshalJSON()
 			_, err = stream.Write(json)
-			_, err = stream.Write([]byte{'\n'})
+			//_, err = stream.Write([]byte{'\n'})
 			if err != nil {
 				return
 			}
@@ -203,7 +205,8 @@ func (l *link) Start() error {
 	return nil
 }
 
-func (l *link) getPeerAddress(pid peer.ID) {
+func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
+	defer wg.Done()
 	s, err := l.GetStream(pid)
 	if err != nil {
 		fmt.Println("found error:", err)
