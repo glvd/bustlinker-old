@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/coreapi"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/multiformats/go-multiaddr"
@@ -28,9 +29,8 @@ type Linker interface {
 }
 
 type link struct {
-	ctx  context.Context
-	node *core.IpfsNode
-
+	ctx         context.Context
+	node        *core.IpfsNode
 	address     map[peer.ID]peer.AddrInfo
 	addressLock *sync.RWMutex
 }
@@ -40,10 +40,11 @@ func (l *link) ListenAndServe() error {
 }
 
 func (l *link) SyncPeers() {
-	fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
+	api, err := coreapi.NewCoreAPI(l.node)
+	if err != nil {
+		return
+	}
 	for {
-		fmt.Println("all peers", l.node.Peerstore.PeersWithAddrs())
-
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
 			if l.node.Identity == pid {
 				continue
@@ -69,19 +70,16 @@ func (l *link) SyncPeers() {
 					continue
 				}
 				fmt.Println("connect to address", ai.String())
-				err = l.node.PeerHost.Connect(l.ctx, ai)
+				err = api.Swarm().Connect(l.ctx, ai)
 				if err != nil {
 					fmt.Println("connect error:", err)
 					continue
 				}
 				l.AddPeerAddress(ai.ID, ai)
 				fmt.Println("connected to address", ai.String())
-				time.Sleep(5 * time.Second)
 			}
-
-			time.Sleep(15 * time.Second)
 		}
-		time.Sleep(30 * time.Second)
+		time.Sleep(15 * time.Second)
 	}
 }
 
