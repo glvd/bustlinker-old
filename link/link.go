@@ -183,19 +183,17 @@ func (l *link) Start() error {
 
 func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 	defer wg.Done()
-	stream, err := conn.NewStream()
+	s, err := l.getStream(conn.RemotePeer())
 	if err != nil {
 		return
 	}
-	stream.SetProtocol(LinkPeers)
-	//s, err := l.getStream(pid)
 	//if err != nil {
 	//	fmt.Println("found error:", err)
 	//	return
 	//}
-	defer stream.Close()
+	defer s.Close()
 	//all, err := ioutil.ReadAll(s)
-	reader := bufio.NewReader(stream)
+	reader := bufio.NewReader(s)
 	for line, _, err := reader.ReadLine(); err == nil; {
 		fmt.Println("json:", string(line))
 		ai := peer.AddrInfo{}
