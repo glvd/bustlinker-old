@@ -32,11 +32,11 @@ type nodeCache struct {
 
 // Cacher ...
 type Cacher interface {
-	Load(hash string, data core.Unmarshaler) error
-	Store(hash string, data core.Marshaler) error
-	Update(hash string, fn func(bytes []byte) (core.Marshaler, error)) error
+	Load(hash string, data json.Unmarshaler) error
+	Store(hash string, data json.Marshaler) error
+	//Update(hash string, fn func(bytes []byte) (core.Marshaler, error)) error
 	Close() error
-	Range(f func(hash string, value string) bool)
+	//Range(f func(hash string, value string) bool)
 }
 
 // DataHashInfo ...
@@ -129,10 +129,10 @@ func (c *baseCache) Update(hash string, fn func(bytes []byte) (core.Marshaler, e
 }
 
 // SaveNode ...
-func (c *baseCache) Store(hash string, data core.Marshaler) error {
+func (c *baseCache) Store(hash string, data json.Marshaler) error {
 	return c.db.Update(
 		func(txn *badger.Txn) error {
-			encode, err := data.Marshal()
+			encode, err := data.MarshalJSON()
 			if err != nil {
 				return err
 			}
@@ -141,7 +141,7 @@ func (c *baseCache) Store(hash string, data core.Marshaler) error {
 }
 
 // LoadNode ...
-func (c *baseCache) Load(hash string, data core.Unmarshaler) error {
+func (c *baseCache) Load(hash string, data json.Unmarshaler) error {
 	return c.db.View(
 		func(txn *badger.Txn) error {
 			item, err := txn.Get([]byte(hash))
@@ -149,7 +149,7 @@ func (c *baseCache) Load(hash string, data core.Unmarshaler) error {
 				return err
 			}
 			return item.Value(func(val []byte) error {
-				return data.Unmarshal(val)
+				return data.UnmarshalJSON(val)
 			})
 		})
 }
