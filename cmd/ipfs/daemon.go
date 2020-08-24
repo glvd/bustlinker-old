@@ -421,7 +421,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		return err
 	}
 
-	lnkErrc, err := serveLink(req, node)
+	lnkErrc, err := serveLink(req, cctx, node)
 	if err != nil {
 		return err
 	}
@@ -466,7 +466,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	return errs
 }
 
-func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
+func serveLink(req *cmds.Request, cctx *oldcmds.Context, node *core.IpfsNode) (<-chan error, error) {
 	//cfg, err := node.Repo.LinkConfig()
 	//if err != nil {
 	//	return nil, err
@@ -497,7 +497,7 @@ func serveLink(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
 	//	listenerAddrs[string(gatewayMaddr.Bytes())] = true
 	//	listeners = append(listeners, gwLis)
 	//}
-	lnk := link.New(req.Context, node)
+	lnk := link.New(req.Context, cctx.ConfigRoot, node)
 
 	//errc := make(chan error)
 	//var wg sync.WaitGroup
