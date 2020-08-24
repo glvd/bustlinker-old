@@ -39,3 +39,19 @@ func (a *Address) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) (b bool) {
 	a.lock.Unlock()
 	return !b
 }
+
+func (a *Address) GetAddress(id peer.ID) (ai peer.AddrInfo, b bool) {
+	a.lock.RLock()
+	ai, b = a.addresses[id]
+	a.lock.RUnlock()
+	return ai, b
+}
+
+func (a *Address) Peers() (ids []peer.ID) {
+	a.lock.RLock()
+	for id := range a.addresses {
+		ids = append(ids, id)
+	}
+	a.lock.RUnlock()
+	return
+}
