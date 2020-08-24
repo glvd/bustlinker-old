@@ -117,7 +117,7 @@ func (l *link) registerHandle() {
 		}
 
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
-		for _, pid := range l.node.Peerstore.Peers() {
+		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
 			if pid == remoteID {
 				continue
 			}
@@ -208,6 +208,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 }
 
 func (l *link) AddPeerAddress(id peer.ID, ai peer.AddrInfo) {
+	l.node.Peering.AddPeer(ai)
 	l.addresses.AddPeerAddress(id, ai)
 }
 
