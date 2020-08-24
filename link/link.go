@@ -32,10 +32,9 @@ type Linker interface {
 }
 
 type link struct {
-	ctx         context.Context
-	node        *core.IpfsNode
-	addresses   map[peer.ID]peer.AddrInfo
-	addressLock *sync.RWMutex
+	ctx       context.Context
+	node      *core.IpfsNode
+	addresses *Address
 
 	//streams    map[peer.ID]network.Stream
 	//streamLock *sync.RWMutex
@@ -81,7 +80,6 @@ func (l *link) syncPeers() {
 }
 
 func (l *link) Syncing() {
-
 	for {
 		wg := &sync.WaitGroup{}
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
@@ -138,35 +136,6 @@ func (l *link) registerHandle() {
 		fmt.Println("link addresses called")
 		fmt.Println(stream.Conn().RemoteMultiaddr())
 	})
-}
-
-func (l *link) CheckPeerAddress(id peer.ID) (b bool) {
-	l.addressLock.RLock()
-	_, b = l.addresses[id]
-	l.addressLock.RUnlock()
-	return
-}
-
-func (l *link) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) (b bool) {
-	l.addressLock.RLock()
-	_, b = l.addresses[id]
-	l.addressLock.RUnlock()
-	if b {
-		return !b
-	}
-	l.addressLock.Lock()
-	_, b = l.addresses[id]
-	if !b {
-		l.addresses[id] = addrs
-	}
-	l.addressLock.Unlock()
-	return !b
-}
-
-func (l *link) AddAddress(id peer.ID, addrs peer.AddrInfo) {
-	l.addressLock.Lock()
-	l.addresses[id] = addrs
-	l.addressLock.Unlock()
 }
 
 func (l *link) getStream(id peer.ID) (network.Stream, error) {
@@ -238,12 +207,15 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 	}
 }
 
+func (l *link) AddPeerAddress(id peer.ID, ai peer.AddrInfo) {
+	l.addresses.AddPeerAddress(id, ai)
+}
+
 func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
-		ctx:         ctx,
-		node:        node,
-		addresses:   make(map[peer.ID]peer.AddrInfo),
-		addressLock: &sync.RWMutex{},
+		ctx:       ctx,
+		node:      node,
+		addresses: NewAddress(),
 		//streams:     make(map[peer.ID]network.Stream),
 		//streamLock:  &sync.RWMutex{},
 		//Listener:    ,
