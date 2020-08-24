@@ -80,11 +80,7 @@ func (l *link) syncPeers() {
 
 }
 
-func (l *link) SyncPeers() {
-	//api, err := coreapi.NewCoreAPI(l.node)
-	//if err != nil {
-	//	return
-	//}
+func (l *link) Syncing() {
 
 	for {
 		wg := &sync.WaitGroup{}
@@ -100,18 +96,13 @@ func (l *link) SyncPeers() {
 	}
 }
 
-func filterAddrs(addr multiaddr.Multiaddr, addrs []multiaddr.Multiaddr) []multiaddr.Multiaddr {
-	v := map[multiaddr.Multiaddr]bool{
-		addr: true,
-	}
+func checkAddrExist(addrs []multiaddr.Multiaddr, addr multiaddr.Multiaddr) bool {
 	for i := range addrs {
-		v[addrs[i]] = true
+		if addr.Equal(addrs[i]) {
+			return true
+		}
 	}
-	var retAddrs []multiaddr.Multiaddr
-	for i := range v {
-		retAddrs = append(retAddrs, i)
-	}
-	return retAddrs
+	return false
 }
 
 func (l *link) registerHandle() {
@@ -119,10 +110,19 @@ func (l *link) registerHandle() {
 		fmt.Println("link peer called")
 		var err error
 		defer stream.Close()
-		addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
-		l.node.Peerstore.SetAddrs(stream.Conn().RemotePeer(), addrs, 7*24*time.Hour)
+		//addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
+		//l.node.Peerstore.AddAddr()
+		remoteID := stream.Conn().RemotePeer()
+		if !checkAddrExist(l.node.Peerstore.Addrs(remoteID), stream.Conn().RemoteMultiaddr()) {
+			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
+		}
+
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
 		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
+			if pid == remoteID {
+				continue
+			}
+			//l.node.Peerstore.ClearAddrs(pid)
 			info := l.node.Peerstore.PeerInfo(pid)
 			json, _ := info.MarshalJSON()
 			_, err = stream.Write(json)
@@ -139,10 +139,27 @@ func (l *link) registerHandle() {
 	})
 }
 
-func (l *link) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) {
+func (l *link) CheckPeerAddress(id peer.ID) (b bool) {
+	l.addressLock.RLock()
+	_, b = l.addresses[id]
+	l.addressLock.RUnlock()
+	return
+}
+
+func (l *link) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) (b bool) {
+	l.addressLock.RLock()
+	_, b = l.addresses[id]
+	l.addressLock.RUnlock()
+	if b {
+		return !b
+	}
 	l.addressLock.Lock()
-	l.addresses[id] = addrs
+	_, b = l.addresses[id]
+	if !b {
+		l.addresses[id] = addrs
+	}
 	l.addressLock.Unlock()
+	return !b
 }
 
 func (l *link) AddAddress(id peer.ID, addrs peer.AddrInfo) {
@@ -151,7 +168,7 @@ func (l *link) AddAddress(id peer.ID, addrs peer.AddrInfo) {
 	l.addressLock.Unlock()
 }
 
-func (l *link) GetStream(id peer.ID) (network.Stream, error) {
+func (l *link) getStream(id peer.ID) (network.Stream, error) {
 	var s network.Stream
 	//var b bool
 	var err error
@@ -176,13 +193,6 @@ func (l *link) GetStream(id peer.ID) (network.Stream, error) {
 	return s, nil
 }
 
-func (l *link) CheckPeerAddress(id peer.ID) (b bool) {
-	l.addressLock.RLock()
-	_, b = l.addresses[id]
-	l.addressLock.RUnlock()
-	return
-}
-
 func (l *link) Conn(conn scdt.Connection) error {
 	return nil
 }
@@ -196,13 +206,13 @@ func (l *link) Start() error {
 	//}
 	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
 	l.registerHandle()
-	go l.SyncPeers()
+	go l.Syncing()
 	return nil
 }
 
 func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 	defer wg.Done()
-	s, err := l.GetStream(pid)
+	s, err := l.getStream(pid)
 	if err != nil {
 		fmt.Println("found error:", err)
 		return
@@ -216,7 +226,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 			fmt.Println("unmarlshal json:", string(line), err)
 			return
 		}
-		fmt.Println("received addresses", ai.String())
+		fmt.Println("received addresses", ai.String(), len(ai.Addrs))
 		if ai.ID == l.node.Identity {
 			continue
 		}
@@ -224,13 +234,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 			continue
 		}
 
-		//err = api.Swarm().Connect(l.ctx, ai)
-		//if err != nil {
-		//	fmt.Println("connect error:", err)
-		//	continue
-		//}
 		l.AddPeerAddress(ai.ID, ai)
-		//fmt.Println("connected to addresses", ai.String())
 	}
 }
 
