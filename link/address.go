@@ -1,6 +1,7 @@
 package link
 
 import (
+	"github.com/glvd/bustlinker/config"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"sync"
 )
@@ -8,12 +9,14 @@ import (
 type Address struct {
 	lock      *sync.RWMutex
 	addresses map[peer.ID]peer.AddrInfo
+	cache     Cacher
 }
 
-func NewAddress() *Address {
+func NewAddress(config config.CacheConfig) *Address {
 	return &Address{
 		lock:      &sync.RWMutex{},
 		addresses: make(map[peer.ID]peer.AddrInfo),
+		cache:     HashCacher(config),
 	}
 }
 

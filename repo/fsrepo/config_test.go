@@ -10,7 +10,7 @@ import (
 	"github.com/glvd/bustlinker/plugin/loader"
 	"github.com/glvd/bustlinker/repo/fsrepo"
 
-	"github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 )
 
 // note: to test sorting of the mountpoints in the disk spec they are

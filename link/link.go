@@ -211,11 +211,16 @@ func (l *link) AddPeerAddress(id peer.ID, ai peer.AddrInfo) {
 	l.addresses.AddPeerAddress(id, ai)
 }
 
-func New(ctx context.Context, node *core.IpfsNode) Linker {
+func (l *link) RegisterAddresses(address *Address) {
+	l.addresses = address
+}
+
+func New(ctx context.Context, root string, node *core.IpfsNode) Linker {
+	//node.Repo.BackupConfig()
 	return &link{
-		ctx:       ctx,
-		node:      node,
-		addresses: NewAddress(),
+		ctx:  ctx,
+		node: node,
+		//addresses: NewAddress(),
 		//streams:     make(map[peer.ID]network.Stream),
 		//streamLock:  &sync.RWMutex{},
 		//Listener:    ,

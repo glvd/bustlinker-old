@@ -9,8 +9,13 @@ import (
 
 type IPFSConfig = config.Config
 
+type CacheConfig struct {
+	BackupSeconds int
+}
+
 type LinkConfig struct {
 	Addresses []string
+	Hash      CacheConfig
 }
 
 // Config ...

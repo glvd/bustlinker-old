@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/dgraph-io/badger/v2"
 	"github.com/dgraph-io/badger/v2/options"
-	"github.com/glvd/accipfs/config"
 	"github.com/glvd/accipfs/core"
+	"github.com/glvd/bustlinker/config"
 	"os"
 	"path/filepath"
 )
@@ -19,7 +19,7 @@ const (
 type baseCache struct {
 	db           *badger.DB
 	iteratorOpts badger.IteratorOptions
-	cfg          *config.Config
+	cfg          config.CacheConfig
 }
 
 type hashCache struct {
@@ -69,8 +69,8 @@ func (v *DataHashInfo) Unmarshal(b []byte) error {
 }
 
 // HashCacher ...
-func HashCacher(cfg *config.Config) Cacher {
-	path := filepath.Join(cfg.Path, cacheDir, hashNodeName)
+func HashCacher(cfg config.CacheConfig) Cacher {
+	path := filepath.Join("./", cacheDir, hashNodeName)
 	_, err := os.Stat(path)
 	if err != nil && os.IsNotExist(err) {
 		err := os.MkdirAll(path, 0755)
@@ -197,34 +197,34 @@ func (c *baseCache) Close() error {
 	return nil
 }
 
-// NodeCacher ...
-func NodeCacher(cfg *config.Config) Cacher {
-	path := filepath.Join(cfg.Path, cacheDir, nodeName)
-	_, err := os.Stat(path)
-	if err != nil && os.IsNotExist(err) {
-		err := os.MkdirAll(path, 0755)
-		if err != nil {
-			panic(err)
-		}
-	}
-	opts := badger.DefaultOptions(path)
-	opts.CompactL0OnClose = false
-	opts.Truncate = true
-	opts.ValueLogLoadingMode = options.FileIO
-	opts.TableLoadingMode = options.MemoryMap
-	//opts.ValueLogFileSize = 1<<28 - 1
-	opts.MaxTableSize = 16 << 20
-	db, err := badger.Open(opts)
-	if err != nil {
-		panic(err)
-	}
-	itOpts := badger.DefaultIteratorOptions
-	itOpts.Reverse = true
-	return &nodeCache{
-		baseCache: baseCache{
-			cfg:          cfg,
-			iteratorOpts: itOpts,
-			db:           db,
-		},
-	}
-}
+//// NodeCacher ...
+//func NodeCacher(cfg *config.CahceConfig) Cacher {
+//	path := filepath.Join(cfg.Path, cacheDir, nodeName)
+//	_, err := os.Stat(path)
+//	if err != nil && os.IsNotExist(err) {
+//		err := os.MkdirAll(path, 0755)
+//		if err != nil {
+//			panic(err)
+//		}
+//	}
+//	opts := badger.DefaultOptions(path)
+//	opts.CompactL0OnClose = false
+//	opts.Truncate = true
+//	opts.ValueLogLoadingMode = options.FileIO
+//	opts.TableLoadingMode = options.MemoryMap
+//	//opts.ValueLogFileSize = 1<<28 - 1
+//	opts.MaxTableSize = 16 << 20
+//	db, err := badger.Open(opts)
+//	if err != nil {
+//		panic(err)
+//	}
+//	itOpts := badger.DefaultIteratorOptions
+//	itOpts.Reverse = true
+//	return &nodeCache{
+//		baseCache: baseCache{
+//			cfg:          cfg,
+//			iteratorOpts: itOpts,
+//			db:           db,
+//		},
+//	}
+//}
