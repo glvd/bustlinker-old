@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/coreapi"
 	"github.com/godcong/scdt"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -82,12 +83,13 @@ func (l *link) syncPeers() {
 func (l *link) Syncing() {
 	for {
 		wg := &sync.WaitGroup{}
-		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
-			if l.node.Identity == pid {
+
+		for _, conn := range l.node.PeerHost.Network().Conns() {
+			if l.node.Identity == conn.RemotePeer() {
 				continue
 			}
 			wg.Add(1)
-			go l.getPeerAddress(wg, pid)
+			go l.getPeerAddress(wg, conn.RemotePeer())
 		}
 		wg.Wait()
 		time.Sleep(15 * time.Second)
@@ -116,16 +118,16 @@ func (l *link) registerHandle() {
 			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
 		}
 
-		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
-		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
-			if pid == remoteID {
-				continue
-			}
+		conns := l.node.PeerHost.Network().Conns()
+		for _, conn := range conns {
+			fmt.Println("remote addr", conn.RemoteMultiaddr())
+			info := l.node.Peerstore.PeerInfo(conn.RemotePeer())
 			//l.node.Peerstore.ClearAddrs(pid)
-			info := l.node.Peerstore.PeerInfo(pid)
+			//info := l.node.Peerstore.PeerInfo(pid)
 			json, _ := info.MarshalJSON()
 			_, err = stream.Write(json)
 			if err != nil {
+				fmt.Println("err", err)
 				return
 			}
 			_, _ = stream.Write(NewLine)
@@ -191,6 +193,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 	//all, err := ioutil.ReadAll(s)
 	reader := bufio.NewReader(s)
 	for line, _, err := reader.ReadLine(); err == nil; {
+		fmt.Println("json:", string(line))
 		ai := peer.AddrInfo{}
 		err := ai.UnmarshalJSON(line)
 		if err != nil {
@@ -208,8 +211,20 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 }
 
 func (l *link) AddPeerAddress(id peer.ID, ai peer.AddrInfo) {
-	l.node.Peering.AddPeer(ai)
-	l.addresses.AddPeerAddress(id, ai)
+	//l.node.Peering.AddPeer(ai)
+	if l.addresses.AddPeerAddress(id, ai) {
+		api, err := coreapi.NewCoreAPI(l.node)
+		if err != nil {
+			fmt.Println("err", err)
+			return
+		}
+		err = api.Swarm().Connect(l.ctx, ai)
+		if err != nil {
+			fmt.Println("err", err)
+			return
+		}
+		fmt.Println("connect success:", ai.String())
+	}
 }
 
 func (l *link) RegisterAddresses(address *Address) {
@@ -217,11 +232,14 @@ func (l *link) RegisterAddresses(address *Address) {
 }
 
 func New(ctx context.Context, root string, node *core.IpfsNode) Linker {
-	//node.Repo.BackupConfig()
+	config, err := node.Repo.Config()
+	if err != nil {
+		return nil
+	}
 	return &link{
-		ctx:  ctx,
-		node: node,
-		//addresses: NewAddress(),
+		ctx:       ctx,
+		node:      node,
+		addresses: NewAddress(config.Link.Hash),
 		//streams:     make(map[peer.ID]network.Stream),
 		//streamLock:  &sync.RWMutex{},
 		//Listener:    ,
