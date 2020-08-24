@@ -113,12 +113,13 @@ func (l *link) registerHandle() {
 		//addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
 		//l.node.Peerstore.AddAddr()
 		remoteID := stream.Conn().RemotePeer()
+		fmt.Println("id:", remoteID, stream.Conn().RemoteMultiaddr().String())
 		if !checkAddrExist(l.node.Peerstore.Addrs(remoteID), stream.Conn().RemoteMultiaddr()) {
 			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
 		}
 
 		fmt.Println("remote addr", stream.Conn().RemoteMultiaddr())
-		for _, pid := range l.node.Peerstore.PeersWithAddrs() {
+		for _, pid := range l.node.Peerstore.Peers() {
 			if pid == remoteID {
 				continue
 			}
@@ -218,9 +219,10 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 		return
 	}
 	defer s.Close()
+	//all, err := ioutil.ReadAll(s)
 	reader := bufio.NewReader(s)
-	ai := peer.AddrInfo{}
 	for line, _, err := reader.ReadLine(); err == nil; {
+		ai := peer.AddrInfo{}
 		err := ai.UnmarshalJSON(line)
 		if err != nil {
 			fmt.Println("unmarlshal json:", string(line), err)
@@ -230,11 +232,9 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 		if ai.ID == l.node.Identity {
 			continue
 		}
-		if l.CheckPeerAddress(ai.ID) {
-			continue
-		}
-
 		l.AddPeerAddress(ai.ID, ai)
+		fmt.Println("sleep for next")
+		time.Sleep(5 * time.Second)
 	}
 }
 
