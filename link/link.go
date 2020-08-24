@@ -83,16 +83,16 @@ func (l *link) syncPeers() {
 func (l *link) Syncing() {
 	for {
 		wg := &sync.WaitGroup{}
-
 		for _, conn := range l.node.PeerHost.Network().Conns() {
 			if l.node.Identity == conn.RemotePeer() {
 				continue
 			}
 			wg.Add(1)
-			go l.getPeerAddress(wg, conn.RemotePeer())
+			go l.getPeerAddress(wg, conn)
 		}
 		wg.Wait()
-		time.Sleep(15 * time.Second)
+		fmt.Println("Wait for next loop")
+		time.Sleep(30 * time.Second)
 	}
 }
 
@@ -118,10 +118,9 @@ func (l *link) registerHandle() {
 			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
 		}
 
-		conns := l.node.PeerHost.Network().Conns()
-		for _, conn := range conns {
-			fmt.Println("remote addr", conn.RemoteMultiaddr())
-			info := l.node.Peerstore.PeerInfo(conn.RemotePeer())
+		peers := l.node.PeerHost.Network().Peers()
+		for _, peer := range peers {
+			info := l.node.Peerstore.PeerInfo(peer)
 			//l.node.Peerstore.ClearAddrs(pid)
 			//info := l.node.Peerstore.PeerInfo(pid)
 			json, _ := info.MarshalJSON()
@@ -182,16 +181,21 @@ func (l *link) Start() error {
 	return nil
 }
 
-func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
+func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 	defer wg.Done()
-	s, err := l.getStream(pid)
+	stream, err := conn.NewStream()
 	if err != nil {
-		fmt.Println("found error:", err)
 		return
 	}
-	defer s.Close()
+	stream.SetProtocol(LinkPeers)
+	//s, err := l.getStream(pid)
+	//if err != nil {
+	//	fmt.Println("found error:", err)
+	//	return
+	//}
+	defer stream.Close()
 	//all, err := ioutil.ReadAll(s)
-	reader := bufio.NewReader(s)
+	reader := bufio.NewReader(stream)
 	for line, _, err := reader.ReadLine(); err == nil; {
 		fmt.Println("json:", string(line))
 		ai := peer.AddrInfo{}
@@ -200,13 +204,13 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, pid peer.ID) {
 			fmt.Println("unmarlshal json:", string(line), err)
 			return
 		}
-		fmt.Println("received addresses", ai.String(), len(ai.Addrs))
 		if ai.ID == l.node.Identity {
 			continue
 		}
+		fmt.Println("received addresses", ai.String(), len(ai.Addrs))
 		l.AddPeerAddress(ai.ID, ai)
-		fmt.Println("sleep for next")
-		time.Sleep(5 * time.Second)
+		//fmt.Println("sleep for next")
+		time.Sleep(1 * time.Second)
 	}
 }
 
