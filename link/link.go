@@ -169,6 +169,13 @@ func (l *link) Start() error {
 	//}
 	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
 	l.registerHandle()
+	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancel()
+	address, err := l.addresses.LoadAddress(ctx)
+	if err != nil {
+		return err
+	}
+	l.addresses.UpdatePeerAddress(<-address)
 	go l.Syncing()
 	return nil
 }
@@ -212,7 +219,7 @@ func (l *link) AddPeerAddress(ai peer.AddrInfo) bool {
 
 func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
 	stream, err := l.getStream(ai.ID)
-	fmt.Println("update",ai.ID.Pretty(),"err",err)
+	fmt.Println("update", ai.ID.Pretty(), "err", err)
 	if err == nil {
 		stream.Close()
 		return

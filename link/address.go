@@ -105,6 +105,7 @@ func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
 func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error) {
 	ai := make(chan peer.AddrInfo)
 	go func() {
+		defer close(ai)
 		a.cache.Range(func(hash string, value string) bool {
 			log.Infow("range node", "hash", hash, "value", value)
 			var info peer.AddrInfo
@@ -116,7 +117,6 @@ func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error)
 			}
 			select {
 			case <-ctx.Done():
-				defer close(ai)
 				return false
 			case ai <- info:
 				return true
