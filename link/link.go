@@ -37,10 +37,8 @@ type link struct {
 	node      *core.IpfsNode
 	addresses *Address
 
-	//streams    map[peer.ID]network.Stream
-	//streamLock *sync.RWMutex
-
 	scdt.Listener
+	root string
 }
 
 func (l *link) ListenAndServe() error {
@@ -110,28 +108,29 @@ func (l *link) registerHandle() {
 		fmt.Println("link peer called")
 		var err error
 		defer stream.Close()
-		//addrs := filterAddrs(stream.Conn().RemoteMultiaddr(), l.node.Peerstore.Addrs(stream.Conn().RemotePeer()))
-		//l.node.Peerstore.AddAddr()
 		remoteID := stream.Conn().RemotePeer()
-		fmt.Println("id:", remoteID, stream.Conn().RemoteMultiaddr().String())
 		if !checkAddrExist(l.node.Peerstore.Addrs(remoteID), stream.Conn().RemoteMultiaddr()) {
 			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
 		}
 
 		peers := l.node.PeerHost.Network().Peers()
+		fmt.Println("total:", len(peers))
 		for _, peer := range peers {
 			info := l.node.Peerstore.PeerInfo(peer)
-			//l.node.Peerstore.ClearAddrs(pid)
-			//info := l.node.Peerstore.PeerInfo(pid)
 			json, _ := info.MarshalJSON()
 			_, err = stream.Write(json)
 			if err != nil {
-				fmt.Println("err", err)
+				log.Debugw("stream write error", "error", err)
 				return
 			}
-			_, _ = stream.Write(NewLine)
-			fmt.Println("send addresses:", info.String())
+			_, err = stream.Write(NewLine)
+			if err != nil {
+				log.Debugw("stream write error", "error", err)
+				return
+			}
+			fmt.Println("to:", remoteID, stream.Conn().RemoteMultiaddr().String(), "send addresses:", info.String())
 		}
+
 	})
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
 		fmt.Println("link addresses called")
@@ -205,7 +204,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 		if ai.ID == l.node.Identity {
 			continue
 		}
-		fmt.Println("received addresses", ai.String(), len(ai.Addrs))
+		fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
 		l.AddPeerAddress(ai.ID, ai)
 		//fmt.Println("sleep for next")
 		time.Sleep(1 * time.Second)
@@ -213,7 +212,6 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 }
 
 func (l *link) AddPeerAddress(id peer.ID, ai peer.AddrInfo) {
-	//l.node.Peering.AddPeer(ai)
 	if l.addresses.AddPeerAddress(id, ai) {
 		api, err := coreapi.NewCoreAPI(l.node)
 		if err != nil {
@@ -241,10 +239,8 @@ func New(ctx context.Context, root string, node *core.IpfsNode) Linker {
 	return &link{
 		ctx:       ctx,
 		node:      node,
+		root:      root,
 		addresses: NewAddress(config.Link.Hash),
-		//streams:     make(map[peer.ID]network.Stream),
-		//streamLock:  &sync.RWMutex{},
-		//Listener:    ,
 	}
 }
 
