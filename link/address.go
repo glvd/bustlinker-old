@@ -58,3 +58,30 @@ func (a *Address) Peers() (ids []peer.ID) {
 	a.lock.RUnlock()
 	return
 }
+
+func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
+	address, b := a.GetAddress(new.ID)
+	if !b {
+		return a.AddPeerAddress(new.ID, new)
+	}
+
+	mark := make(map[string]bool)
+	for _, addr := range address.Addrs {
+		mark[addr.String()] = true
+	}
+
+	for _, addr := range new.Addrs {
+		if mark[addr.String()] {
+			delete(mark, addr.String())
+		}
+	}
+
+	if len(mark) == 0 {
+		return false
+	}
+
+	a.lock.Lock()
+	a.addresses[new.ID] = new
+	a.lock.Unlock()
+	return true
+}

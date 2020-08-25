@@ -191,12 +191,22 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 	//	return
 	//}
 	defer s.Close()
+
+	//b := bytes.NewBuffer(nil)
+	//_, err = b.ReadFrom(s)
+	//if err != nil {
+	//	return
+	//}
+	//fmt.Println("json:", b.String())
 	//all, err := ioutil.ReadAll(s)
 	reader := bufio.NewReader(s)
-	for line, _, err := reader.ReadLine(); err == nil; {
-		fmt.Println("json:", string(line))
+	for {
+		line, _, err := reader.ReadLine()
+		if err != nil {
+			return
+		}
 		ai := peer.AddrInfo{}
-		err := ai.UnmarshalJSON(line)
+		err = ai.UnmarshalJSON(line)
 		if err != nil {
 			fmt.Println("unmarlshal json:", string(line), err)
 			return
@@ -205,14 +215,14 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 			continue
 		}
 		fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
-		l.AddPeerAddress(ai.ID, ai)
+		l.AddPeerAddress(ai)
 		//fmt.Println("sleep for next")
 		time.Sleep(1 * time.Second)
 	}
 }
 
-func (l *link) AddPeerAddress(id peer.ID, ai peer.AddrInfo) {
-	if l.addresses.AddPeerAddress(id, ai) {
+func (l *link) AddPeerAddress(ai peer.AddrInfo) {
+	if l.addresses.UpdatePeerAddress(ai) {
 		api, err := coreapi.NewCoreAPI(l.node)
 		if err != nil {
 			fmt.Println("err", err)
