@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"github.com/glvd/bustlinker/config"
 	"io"
 	"sort"
 
@@ -11,7 +12,7 @@ import (
 	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
-	config "github.com/ipfs/go-ipfs-config"
+	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	peer "github.com/libp2p/go-libp2p-core/peer"
 	ma "github.com/multiformats/go-multiaddr"
 )
@@ -110,10 +111,6 @@ in the bootstrap list).
 	},
 }
 
-var DefaultBootstrapAddresses = []string{
-	//todo:add some bootstrap address
-}
-
 var bootstrapAddDefaultCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
 		Tagline: "Add default peers to the bootstrap list.",
@@ -137,7 +134,7 @@ in the bootstrap list).`,
 			return err
 		}
 
-		added, err := bootstrapAdd(r, cfg, DefaultBootstrapAddresses)
+		added, err := bootstrapAdd(r, cfg, config.DefaultBootstrapAddresses)
 		if err != nil {
 			return err
 		}
@@ -277,7 +274,7 @@ var bootstrapListCmd = &cmds.Command{
 			return err
 		}
 
-		return cmds.EmitOnce(res, &BootstrapOutput{config.BootstrapPeerStrings(peers)})
+		return cmds.EmitOnce(res, &BootstrapOutput{ipfsconfig.BootstrapPeerStrings(peers)})
 	},
 	Type: BootstrapOutput{},
 	Encoders: cmds.EncoderMap{
@@ -298,7 +295,7 @@ func bootstrapWritePeers(w io.Writer, prefix string, peers []string) error {
 	return nil
 }
 
-func bootstrapAdd(r repo.Repo, cfg *config.Config, peers []string) ([]string, error) {
+func bootstrapAdd(r repo.Repo, cfg *ipfsconfig.Config, peers []string) ([]string, error) {
 	for _, p := range peers {
 		m, err := ma.NewMultiaddr(p)
 		if err != nil {
@@ -348,11 +345,11 @@ func bootstrapAdd(r repo.Repo, cfg *config.Config, peers []string) ([]string, er
 	return addedList, nil
 }
 
-func bootstrapRemove(r repo.Repo, cfg *config.Config, toRemove []string) ([]string, error) {
+func bootstrapRemove(r repo.Repo, cfg *ipfsconfig.Config, toRemove []string) ([]string, error) {
 	removed := make([]peer.AddrInfo, 0, len(toRemove))
 	keep := make([]peer.AddrInfo, 0, len(cfg.Bootstrap))
 
-	toRemoveAddr, err := config.ParseBootstrapPeers(toRemove)
+	toRemoveAddr, err := ipfsconfig.ParseBootstrapPeers(toRemove)
 	if err != nil {
 		return nil, err
 	}
@@ -406,10 +403,10 @@ func bootstrapRemove(r repo.Repo, cfg *config.Config, toRemove []string) ([]stri
 		return nil, err
 	}
 
-	return config.BootstrapPeerStrings(removed), nil
+	return ipfsconfig.BootstrapPeerStrings(removed), nil
 }
 
-func bootstrapRemoveAll(r repo.Repo, cfg *config.Config) ([]string, error) {
+func bootstrapRemoveAll(r repo.Repo, cfg *ipfsconfig.Config) ([]string, error) {
 	removed, err := cfg.BootstrapPeers()
 	if err != nil {
 		return nil, err
@@ -419,7 +416,7 @@ func bootstrapRemoveAll(r repo.Repo, cfg *config.Config) ([]string, error) {
 	if err := r.SetIPFSConfig(cfg); err != nil {
 		return nil, err
 	}
-	return config.BootstrapPeerStrings(removed), nil
+	return ipfsconfig.BootstrapPeerStrings(removed), nil
 }
 
 const bootstrapSecurityWarning = `

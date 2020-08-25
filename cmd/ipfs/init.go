@@ -176,6 +176,7 @@ func doInit(out io.Writer, repoRoot string, empty bool, identity *ipfsconfig.Ide
 		if err != nil {
 			return err
 		}
+		conf.IPFS.Bootstrap = config.DefaultBootstrapAddresses
 	}
 	if conf.Link == nil {
 		var err error
