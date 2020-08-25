@@ -125,15 +125,20 @@ func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error)
 }
 
 // SaveNode ...
-func (a *Address) SaveNode() (err error) {
+func (a *Address) SaveAddress(ctx context.Context) (err error) {
 	for _, id := range a.Peers() {
-		address, b := a.GetAddress(id)
-		if !b {
-			continue
-		}
-		err := a.cache.Store(id.Pretty(), address)
-		if err != nil {
-			return err
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			address, b := a.GetAddress(id)
+			if !b {
+				continue
+			}
+			err := a.cache.Store(id.Pretty(), address)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
