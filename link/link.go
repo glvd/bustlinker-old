@@ -203,6 +203,7 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 	for {
 		line, _, err := reader.ReadLine()
 		if err != nil {
+			fmt.Println("EOF", err)
 			return
 		}
 		ai := peer.AddrInfo{}
@@ -215,13 +216,17 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 			continue
 		}
 		fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
-		l.AddPeerAddress(ai)
+		l.UpdatePeerAddress(ai)
 		//fmt.Println("sleep for next")
-		time.Sleep(1 * time.Second)
+		//time.Sleep(1 * time.Second)
 	}
 }
 
-func (l *link) AddPeerAddress(ai peer.AddrInfo) {
+func (l *link) AddPeerAddress(ai peer.AddrInfo) bool {
+	return l.addresses.AddPeerAddress(ai)
+}
+
+func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
 	if l.addresses.UpdatePeerAddress(ai) {
 		api, err := coreapi.NewCoreAPI(l.node)
 		if err != nil {

@@ -27,17 +27,17 @@ func (a *Address) CheckPeerAddress(id peer.ID) (b bool) {
 	return
 }
 
-func (a *Address) AddPeerAddress(id peer.ID, addrs peer.AddrInfo) (b bool) {
+func (a *Address) AddPeerAddress(addr peer.AddrInfo) (b bool) {
 	a.lock.RLock()
-	_, b = a.addresses[id]
+	_, b = a.addresses[addr.ID]
 	a.lock.RUnlock()
 	if b {
 		return !b
 	}
 	a.lock.Lock()
-	_, b = a.addresses[id]
+	_, b = a.addresses[addr.ID]
 	if !b {
-		a.addresses[id] = addrs
+		a.addresses[addr.ID] = addr
 	}
 	a.lock.Unlock()
 	return !b
@@ -62,7 +62,7 @@ func (a *Address) Peers() (ids []peer.ID) {
 func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
 	address, b := a.GetAddress(new.ID)
 	if !b {
-		return a.AddPeerAddress(new.ID, new)
+		return a.AddPeerAddress(new)
 	}
 
 	mark := make(map[string]bool)
