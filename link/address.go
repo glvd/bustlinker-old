@@ -104,42 +104,46 @@ func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
 
 func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error) {
 	ai := make(chan peer.AddrInfo)
-	a.cache.Range(func(hash string, value string) bool {
-		log.Infow("range node", "hash", hash, "value", value)
-		var info peer.AddrInfo
-		err := info.UnmarshalJSON([]byte(value))
-		//err := json.Unmarshal([]byte(value), &ninfo)
-		if err != nil {
-			log.Errorw("load addr info failed", "err", err)
-			return true
-		}
-		select {
-		case <-ctx.Done():
-			defer close(ai)
-			return false
-		case ai <- info:
-			return true
-		}
-	})
+	go func() {
+		a.cache.Range(func(hash string, value string) bool {
+			log.Infow("range node", "hash", hash, "value", value)
+			var info peer.AddrInfo
+			err := info.UnmarshalJSON([]byte(value))
+			//err := json.Unmarshal([]byte(value), &ninfo)
+			if err != nil {
+				log.Errorw("load addr info failed", "err", err)
+				return true
+			}
+			select {
+			case <-ctx.Done():
+				defer close(ai)
+				return false
+			case ai <- info:
+				return true
+			}
+		})
+	}()
 	return ai, nil
 }
 
 // SaveNode ...
 func (a *Address) SaveAddress(ctx context.Context) (err error) {
-	for _, id := range a.Peers() {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			address, b := a.GetAddress(id)
-			if !b {
-				continue
-			}
-			err := a.cache.Store(id.Pretty(), address)
-			if err != nil {
-				return err
+	go func() {
+		for _, id := range a.Peers() {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				address, b := a.GetAddress(id)
+				if !b {
+					continue
+				}
+				err := a.cache.Store(id.Pretty(), address)
+				if err != nil {
+					return
+				}
 			}
 		}
-	}
+	}()
 	return nil
 }
