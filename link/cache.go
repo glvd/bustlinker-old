@@ -34,9 +34,15 @@ type nodeCache struct {
 type Cacher interface {
 	Load(hash string, data json.Unmarshaler) error
 	Store(hash string, data json.Marshaler) error
-	//Update(hash string, fn func(bytes []byte) (core.Marshaler, error)) error
+	Update(hash string, up CacheUpdater) error
 	Close() error
-	//Range(f func(hash string, value string) bool)
+	Range(f func(hash string, value string) bool)
+}
+
+type CacheUpdater interface {
+	json.Unmarshaler
+	Do()
+	json.Marshaler
 }
 
 // DataHashInfo ...
@@ -99,28 +105,41 @@ func HashCacher(path string, cfg config.CacheConfig) Cacher {
 	}
 }
 
-// Update ...
-func (c *baseCache) Update(hash string, fn func(bytes []byte) (core.Marshaler, error)) error {
+func (c *baseCache) UpdateBytes(hash string, b []byte) error {
 	return c.db.Update(
 		func(txn *badger.Txn) error {
 			item, err := txn.Get([]byte(hash))
 			if err != nil {
 				return err
 			}
-			if fn != nil {
+			return item.Value(func(val []byte) error {
+				return txn.Set([]byte(hash), b)
+			})
+			return nil
+		})
+}
+
+// Update ...
+func (c *baseCache) Update(hash string, up CacheUpdater) error {
+	return c.db.Update(
+		func(txn *badger.Txn) error {
+			item, err := txn.Get([]byte(hash))
+			if err != nil {
+				return err
+			}
+			if up != nil {
 				return item.Value(func(val []byte) error {
-					if fn != nil {
-						data, err := fn(val)
-						if err != nil {
-							//do nothing when have err
-							return err
-						}
-						encode, err := data.Marshal()
-						if err != nil {
-							return err
-						}
-						return txn.Set([]byte(hash), encode)
+					err := up.UnmarshalJSON(val)
+					if err != nil {
+						//do nothing when have err
+						return err
 					}
+					up.Do()
+					encode, err := up.MarshalJSON()
+					if err != nil {
+						return err
+					}
+					return txn.Set([]byte(hash), encode)
 					return nil
 				})
 			}
@@ -166,7 +185,7 @@ func (c *baseCache) Range(f func(key, value string) bool) {
 				return nil
 			}
 			item = iter.Item()
-			err := item.Value(func(v []byte) error {
+			err := iter.Item().Value(func(v []byte) error {
 				key := item.Key()
 				val, err := item.ValueCopy(v)
 				if err != nil {
@@ -196,35 +215,3 @@ func (c *baseCache) Close() error {
 	}
 	return nil
 }
-
-//// NodeCacher ...
-//func NodeCacher(cfg *config.CahceConfig) Cacher {
-//	path := filepath.Join(cfg.Path, cacheDir, nodeName)
-//	_, err := os.Stat(path)
-//	if err != nil && os.IsNotExist(err) {
-//		err := os.MkdirAll(path, 0755)
-//		if err != nil {
-//			panic(err)
-//		}
-//	}
-//	opts := badger.DefaultOptions(path)
-//	opts.CompactL0OnClose = false
-//	opts.Truncate = true
-//	opts.ValueLogLoadingMode = options.FileIO
-//	opts.TableLoadingMode = options.MemoryMap
-//	//opts.ValueLogFileSize = 1<<28 - 1
-//	opts.MaxTableSize = 16 << 20
-//	db, err := badger.Open(opts)
-//	if err != nil {
-//		panic(err)
-//	}
-//	itOpts := badger.DefaultIteratorOptions
-//	itOpts.Reverse = true
-//	return &nodeCache{
-//		baseCache: baseCache{
-//			cfg:          cfg,
-//			iteratorOpts: itOpts,
-//			db:           db,
-//		},
-//	}
-//}

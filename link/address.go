@@ -17,9 +17,6 @@ type Address struct {
 	cache     Cacher
 }
 
-type dummy struct {
-}
-
 func defaultAddress() *Address {
 	return &Address{
 		lock:      &sync.RWMutex{},
@@ -102,4 +99,21 @@ func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
 	a.addresses[new.ID] = new
 	a.lock.Unlock()
 	return true
+}
+
+func (a *Address) LoadAddress() (<-chan peer.AddrInfo, error) {
+	ai := make(chan peer.AddrInfo)
+	a.cache.Range(func(hash string, value string) bool {
+		log.Infow("range node", "hash", hash, "value", value)
+		var info peer.AddrInfo
+		err := info.UnmarshalJSON([]byte(value))
+		//err := json.Unmarshal([]byte(value), &ninfo)
+		if err != nil {
+			log.Errorw("load addr info failed", "err", err)
+			return true
+		}
+		ai <- info
+		return true
+	})
+	return ai, nil
 }
