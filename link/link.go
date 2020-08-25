@@ -186,39 +186,30 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 	if err != nil {
 		return
 	}
-	//if err != nil {
-	//	fmt.Println("found error:", err)
-	//	return
-	//}
 	defer s.Close()
 
-	//b := bytes.NewBuffer(nil)
-	//_, err = b.ReadFrom(s)
-	//if err != nil {
-	//	return
-	//}
-	//fmt.Println("json:", b.String())
-	//all, err := ioutil.ReadAll(s)
 	reader := bufio.NewReader(s)
 	for {
-		line, _, err := reader.ReadLine()
-		if err != nil {
-			fmt.Println("EOF", err)
+		select {
+		case <-l.ctx.Done():
 			return
+		default:
+			line, _, err := reader.ReadLine()
+			if err != nil {
+				return
+			}
+			ai := peer.AddrInfo{}
+			err = ai.UnmarshalJSON(line)
+			if err != nil {
+				fmt.Println("unmarlshal json:", string(line), err)
+				return
+			}
+			if ai.ID == l.node.Identity {
+				continue
+			}
+			fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
+			l.UpdatePeerAddress(ai)
 		}
-		ai := peer.AddrInfo{}
-		err = ai.UnmarshalJSON(line)
-		if err != nil {
-			fmt.Println("unmarlshal json:", string(line), err)
-			return
-		}
-		if ai.ID == l.node.Identity {
-			continue
-		}
-		fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
-		l.UpdatePeerAddress(ai)
-		//fmt.Println("sleep for next")
-		//time.Sleep(1 * time.Second)
 	}
 }
 
@@ -227,6 +218,12 @@ func (l *link) AddPeerAddress(ai peer.AddrInfo) bool {
 }
 
 func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
+	stream, err := l.getStream(ai.ID)
+	if err == nil {
+		stream.Close()
+		return
+	}
+	fmt.Println("err", err)
 	if l.addresses.UpdatePeerAddress(ai) {
 		api, err := coreapi.NewCoreAPI(l.node)
 		if err != nil {
