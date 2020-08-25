@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	cacheDir     = ".cache"
-	hashNodeName = "hashNodes"
-	nodeName     = "nodes"
+	cacheDir = ".cache"
+	hashName = "hashes"
+	nodeName = "nodes"
 )
 
 type baseCache struct {
@@ -69,8 +69,8 @@ func (v *DataHashInfo) Unmarshal(b []byte) error {
 }
 
 // HashCacher ...
-func HashCacher(cfg config.CacheConfig) Cacher {
-	path := filepath.Join("./", cacheDir, hashNodeName)
+func HashCacher(path string, cfg config.CacheConfig) Cacher {
+	path = filepath.Join(path, cacheDir, hashName)
 	_, err := os.Stat(path)
 	if err != nil && os.IsNotExist(err) {
 		err := os.MkdirAll(path, 0755)

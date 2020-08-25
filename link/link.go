@@ -10,8 +10,6 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/multiformats/go-multiaddr"
-	manet "github.com/multiformats/go-multiaddr-net"
-	"github.com/portmapping/go-reuse"
 	"sync"
 	"time"
 )
@@ -38,7 +36,6 @@ type link struct {
 	addresses *Address
 
 	scdt.Listener
-	root string
 }
 
 func (l *link) ListenAndServe() error {
@@ -46,35 +43,31 @@ func (l *link) ListenAndServe() error {
 }
 
 func (l *link) syncPeers() {
-	listener, err := scdt.NewListener(l.node.Identity.String())
-	if err != nil {
-		return
-	}
-	l.Listener = listener
-	config, err := l.node.Repo.LinkConfig()
-	if err != nil {
-		return
-	}
-	//api, err := coreapi.NewCoreAPI(l.node)
+	//listener, err := scdt.NewListener(l.node.Identity.String())
+	//if err != nil {
+	//	return
+	//}
+	//l.Listener = listener
+	//config, err := l.node.Repo.LinkConfig()
 	//if err != nil {
 	//	return
 	//}
 
-	for _, address := range config.Addresses {
-		ma, err := multiaddr.NewMultiaddr(address)
-		if err != nil {
-			continue
-		}
-		nw, ip, err := manet.DialArgs(ma)
-		if err != nil {
-			return
-		}
-		listen, err := reuse.Listen(nw, ip)
-		if err != nil {
-			return
-		}
-		l.Listener.Listen(nw, listen)
-	}
+	//for _, address := range config.Addresses {
+	//	ma, err := multiaddr.NewMultiaddr(address)
+	//	if err != nil {
+	//		continue
+	//	}
+	//	nw, ip, err := manet.DialArgs(ma)
+	//	if err != nil {
+	//		return
+	//	}
+	//	listen, err := reuse.Listen(nw, ip)
+	//	if err != nil {
+	//		return
+	//	}
+	//	l.Listener.Listen(nw, listen)
+	//}
 
 }
 
@@ -219,6 +212,7 @@ func (l *link) AddPeerAddress(ai peer.AddrInfo) bool {
 
 func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
 	stream, err := l.getStream(ai.ID)
+	fmt.Println("update",ai.ID.Pretty(),"err",err)
 	if err == nil {
 		stream.Close()
 		return
@@ -243,16 +237,11 @@ func (l *link) RegisterAddresses(address *Address) {
 	l.addresses = address
 }
 
-func New(ctx context.Context, root string, node *core.IpfsNode) Linker {
-	config, err := node.Repo.Config()
-	if err != nil {
-		return nil
-	}
+func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
 		ctx:       ctx,
 		node:      node,
-		root:      root,
-		addresses: NewAddress(config.Link.Hash),
+		addresses: NewAddress(node),
 	}
 }
 

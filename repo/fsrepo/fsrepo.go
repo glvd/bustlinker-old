@@ -109,6 +109,7 @@ type FSRepo struct {
 	filemgr  *filestore.FileManager
 }
 
+
 var _ repo.Repo = (*FSRepo)(nil)
 
 // Open the FSRepo at path. Returns an error if the repo is not

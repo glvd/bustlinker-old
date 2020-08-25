@@ -1,7 +1,8 @@
 package link
 
 import (
-	"github.com/glvd/bustlinker/config"
+	"github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/repo/fsrepo"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"sync"
 )
@@ -12,12 +13,29 @@ type Address struct {
 	cache     Cacher
 }
 
-func NewAddress(config config.CacheConfig) *Address {
+type dummy struct {
+
+}
+
+func defaultAddress()*Address  {
 	return &Address{
 		lock:      &sync.RWMutex{},
 		addresses: make(map[peer.ID]peer.AddrInfo),
-		cache:     HashCacher(config),
 	}
+}
+
+func NewAddress(node *core.IpfsNode) *Address {
+	addr := defaultAddress()
+	v,b :=node.Repo.(*fsrepo.FSRepo)
+	if !b{
+		return  addr
+	}
+	cfg, err := v.LinkConfig()
+	if err != nil {
+		return addr
+	}
+	addr.cache = HashCacher(v.Path(),cfg.Address)
+	return addr
 }
 
 func (a *Address) CheckPeerAddress(id peer.ID) (b bool) {
