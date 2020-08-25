@@ -94,7 +94,6 @@ require (
 	github.com/multiformats/go-multibase v0.0.3
 	github.com/multiformats/go-multihash v0.0.14
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/panjf2000/ants/v2 v2.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/portmapping/go-reuse v0.0.3
 	github.com/prometheus/client_golang v1.6.0

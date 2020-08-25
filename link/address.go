@@ -1,6 +1,7 @@
 package link
 
 import (
+	"context"
 	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -101,7 +102,7 @@ func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
 	return true
 }
 
-func (a *Address) LoadAddress() (<-chan peer.AddrInfo, error) {
+func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error) {
 	ai := make(chan peer.AddrInfo)
 	a.cache.Range(func(hash string, value string) bool {
 		log.Infow("range node", "hash", hash, "value", value)
@@ -112,8 +113,28 @@ func (a *Address) LoadAddress() (<-chan peer.AddrInfo, error) {
 			log.Errorw("load addr info failed", "err", err)
 			return true
 		}
-		ai <- info
-		return true
+		select {
+		case <-ctx.Done():
+			defer close(ai)
+			return false
+		case ai <- info:
+			return true
+		}
 	})
 	return ai, nil
+}
+
+// SaveNode ...
+func (a *Address) SaveNode() (err error) {
+	for _, id := range a.Peers() {
+		address, b := a.GetAddress(id)
+		if !b {
+			continue
+		}
+		err := a.cache.Store(id.Pretty(), address)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
