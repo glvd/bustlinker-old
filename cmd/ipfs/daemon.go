@@ -497,7 +497,7 @@ func serveLink(req *cmds.Request, cctx *oldcmds.Context, node *core.IpfsNode) (<
 	//	listenerAddrs[string(gatewayMaddr.Bytes())] = true
 	//	listeners = append(listeners, gwLis)
 	//}
-	lnk := link.New(req.Context, cctx.ConfigRoot, node)
+	lnk := link.New(req.Context, node)
 
 	//errc := make(chan error)
 	//var wg sync.WaitGroup

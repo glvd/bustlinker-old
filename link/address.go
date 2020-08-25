@@ -1,11 +1,15 @@
 package link
 
 import (
+	"fmt"
 	"github.com/glvd/bustlinker/core"
-	"github.com/glvd/bustlinker/repo/fsrepo"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"sync"
 )
+
+type RootPath interface {
+	Path() string
+}
 
 type Address struct {
 	lock      *sync.RWMutex
@@ -14,10 +18,9 @@ type Address struct {
 }
 
 type dummy struct {
-
 }
 
-func defaultAddress()*Address  {
+func defaultAddress() *Address {
 	return &Address{
 		lock:      &sync.RWMutex{},
 		addresses: make(map[peer.ID]peer.AddrInfo),
@@ -26,15 +29,12 @@ func defaultAddress()*Address  {
 
 func NewAddress(node *core.IpfsNode) *Address {
 	addr := defaultAddress()
-	v,b :=node.Repo.(*fsrepo.FSRepo)
-	if !b{
-		return  addr
-	}
-	cfg, err := v.LinkConfig()
+	cfg, err := node.Repo.LinkConfig()
 	if err != nil {
 		return addr
 	}
-	addr.cache = HashCacher(v.Path(),cfg.Address)
+	fmt.Println("cache initialized")
+	addr.cache = HashCacher(node.Repo.Path(), cfg.Address)
 	return addr
 }
 

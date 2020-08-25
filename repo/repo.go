@@ -60,6 +60,8 @@ type Repo interface {
 	// SwarmKey returns the configured shared symmetric key for the private networks feature.
 	SwarmKey() ([]byte, error)
 
+	Path() string
+
 	io.Closer
 }
 

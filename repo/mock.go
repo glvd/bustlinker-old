@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/glvd/bustlinker/config"
 
-	keystore "github.com/glvd/bustlinker/keystore"
-	filestore "github.com/ipfs/go-filestore"
+	"github.com/glvd/bustlinker/keystore"
+	"github.com/ipfs/go-filestore"
 
 	ma "github.com/multiformats/go-multiaddr"
 )
@@ -72,5 +72,7 @@ func (m *Mock) Keystore() keystore.Keystore { return m.K }
 func (m *Mock) SwarmKey() ([]byte, error) {
 	return nil, nil
 }
+
+func (m *Mock) Path() string {	return ""}
 
 func (m *Mock) FileManager() *filestore.FileManager { return m.F }
