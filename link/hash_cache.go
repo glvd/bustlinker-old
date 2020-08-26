@@ -35,13 +35,14 @@ func NewHash(node *core.IpfsNode) *HashCache {
 
 func (c *HashCache) Get(hash string) peer.IDSlice {
 	var ids map[peer.ID]bool
+	var peers peer.IDSlice
 	c.lock.RLock()
 	ids = c.hashes[hash]
-	c.lock.RUnlock()
-	var peers peer.IDSlice
 	for id := range ids {
 		peers = append(peers, id)
 	}
+	c.lock.RUnlock()
+
 	return peers
 }
 
@@ -74,11 +75,11 @@ func (c *HashCache) Add(hash string, id peer.ID) (b bool) {
 		_, b = ids[id]
 		ids[id] = true
 	} else {
-		b = true
+		b = false
 		c.hashes[hash] = map[peer.ID]bool{
 			id: true,
 		}
 	}
 	c.lock.Unlock()
-	return b
+	return !b
 }
