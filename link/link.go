@@ -27,7 +27,6 @@ var NewLine = []byte{'\n'}
 
 type Linker interface {
 	Start() error
-	ListenAndServe() error
 }
 
 type link struct {
@@ -35,10 +34,6 @@ type link struct {
 	node      *core.IpfsNode
 	addresses *Address
 	hashes    *Hash
-}
-
-func (l *link) ListenAndServe() error {
-	return nil
 }
 
 func (l *link) syncPeers() {

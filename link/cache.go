@@ -141,7 +141,6 @@ func (c *baseCache) Update(hash string, up CacheUpdater) error {
 						return err
 					}
 					return txn.Set([]byte(hash), encode)
-					return nil
 				})
 			}
 			return nil
