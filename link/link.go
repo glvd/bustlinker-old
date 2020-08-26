@@ -37,10 +37,10 @@ type link struct {
 	node        *core.IpfsNode
 	failedCount map[peer.ID]int64
 	failedLock  *sync.RWMutex
-	pins        []string
-	pinsLock    *sync.RWMutex
-	addresses   *PeerCache
-	hashes      *HashCache
+
+	addresses *PeerCache
+	hashes    *HashCache
+	pinning   Pinning
 }
 
 func (l *link) syncPeers() {
@@ -131,44 +131,12 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 	}
 }
 
-func (l *link) getPins() []string {
-	var pins []string
-	l.pinsLock.RLock()
-	if l.pins == nil {
-		return pins
-	}
-	pins = make([]string, len(l.pins))
-	copy(pins, l.pins)
-	l.pinsLock.RUnlock()
-	return pins
-}
-
-func (l *link) clearPin() {
-	l.pinsLock.Lock()
-	l.pins = nil
-	l.pinsLock.Unlock()
-}
-
-func (l *link) addPin(pin string) {
-	l.pinsLock.Lock()
-	l.pins = append(l.pins, pin)
-	l.pinsLock.Unlock()
-}
-
-func (l *link) setPins(pins []string) {
-	p := make([]string, len(pins))
-	copy(p, pins)
-	l.pinsLock.Lock()
-	l.pins = p
-	l.pinsLock.Unlock()
-}
-
 func (l *link) newLinkHashHandle() (protocol.ID, func(stream network.Stream)) {
 	return LinkHash, func(stream network.Stream) {
 		fmt.Println("link hash called")
 		var err error
 		defer stream.Close()
-		for _, peer := range l.getPins() {
+		for _, peer := range l.pinning.Get() {
 			_, err = stream.Write([]byte(peer))
 			if err != nil {
 				log.Debugw("stream write error", "error", err)
@@ -314,10 +282,9 @@ func (l *link) syncPin() {
 		if err != nil {
 			return
 		}
-		l.clearPin()
 		for pin := range ls {
 			fmt.Println(pin.Path().Cid().String())
-			l.addPin(pin.Path().String())
+			l.pinning.Add(pin.Path().String())
 		}
 		time.Sleep(30 * time.Second)
 	}
@@ -329,8 +296,7 @@ func New(ctx context.Context, node *core.IpfsNode) Linker {
 		node:        node,
 		failedCount: make(map[peer.ID]int64),
 		failedLock:  &sync.RWMutex{},
-		pins:        nil,
-		pinsLock:    &sync.RWMutex{},
+		pinning:     newPinning(node),
 		addresses:   NewAddress(node),
 		hashes:      NewHash(node),
 	}
