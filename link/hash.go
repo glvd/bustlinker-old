@@ -27,7 +27,7 @@ func NewHash(node *core.IpfsNode) *Hash {
 		return hash
 	}
 	fmt.Println("cache initialized")
-	hash.cache = NewCache(node.Repo.Path(), cfg.Hash)
+	hash.cache = NewCache(cfg.Hash, node.Repo.Path(), hashName)
 	return hash
 }
 
