@@ -73,14 +73,13 @@ func (l *link) syncPeers() {
 }
 
 func (l *link) Syncing() {
+	go l.syncPin()
 	for {
 		wg := &sync.WaitGroup{}
 		for _, conn := range l.node.PeerHost.Network().Conns() {
 			if l.node.Identity == conn.RemotePeer() {
 				continue
 			}
-			wg.Add(1)
-			go l.syncPin()
 			wg.Add(1)
 			go l.getPeerAddress(wg, conn)
 			wg.Add(1)
@@ -289,6 +288,7 @@ func (l *link) getRemoteHash(wg *sync.WaitGroup, conn network.Conn) {
 			if err != nil {
 				return
 			}
+			fmt.Println("from:", id, "received hash:", string(line))
 			l.UpdateHash(string(line), id)
 		}
 	}
@@ -303,14 +303,17 @@ func (l *link) syncPin() {
 	if err != nil {
 		return
 	}
-	ls, err := api.Pin().Ls(l.ctx, options.Pin.Ls.Recursive())
-	if err != nil {
-		return
-	}
+	for {
+		ls, err := api.Pin().Ls(l.ctx, options.Pin.Ls.Recursive())
+		if err != nil {
+			return
+		}
 
-	for pin := range ls {
-		fmt.Println(pin.Path().String())
-		l.addPin(pin.Path().String())
+		for pin := range ls {
+			fmt.Println(pin.Path().Cid().String())
+			l.addPin(pin.Path().String())
+		}
+		time.Sleep(30 * time.Second)
 	}
 }
 
