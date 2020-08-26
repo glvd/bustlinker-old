@@ -74,8 +74,8 @@ func (v *DataHashInfo) Unmarshal(b []byte) error {
 	return json.Unmarshal(b, v)
 }
 
-// HashCacher ...
-func HashCacher(path string, cfg config.CacheConfig) Cacher {
+// NewCache ...
+func NewCache(path string, cfg config.CacheConfig) Cacher {
 	path = filepath.Join(path, cacheDir, hashName)
 	_, err := os.Stat(path)
 	if err != nil && os.IsNotExist(err) {

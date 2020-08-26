@@ -34,8 +34,7 @@ type link struct {
 	ctx       context.Context
 	node      *core.IpfsNode
 	addresses *Address
-
-	scdt.Listener
+	hashes    *Hash
 }
 
 func (l *link) ListenAndServe() error {
@@ -250,6 +249,7 @@ func New(ctx context.Context, node *core.IpfsNode) Linker {
 		ctx:       ctx,
 		node:      node,
 		addresses: NewAddress(node),
+		hashes:    NewHash(node),
 	}
 }
 

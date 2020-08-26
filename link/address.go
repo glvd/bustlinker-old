@@ -32,7 +32,7 @@ func NewAddress(node *core.IpfsNode) *Address {
 		return addr
 	}
 	fmt.Println("cache initialized")
-	addr.cache = HashCacher(node.Repo.Path(), cfg.Address)
+	addr.cache = NewCache(node.Repo.Path(), cfg.Address)
 	return addr
 }
 
