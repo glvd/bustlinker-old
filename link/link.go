@@ -36,10 +36,11 @@ type link struct {
 	ctx         context.Context
 	node        *core.IpfsNode
 	failedCount map[peer.ID]int64
-	failedLock  sync.RWMutex
-
-	addresses *PeerCache
-	hashes    *HashCache
+	failedLock  *sync.RWMutex
+	pins        []string
+	pinsLock    *sync.RWMutex
+	addresses   *PeerCache
+	hashes      *HashCache
 }
 
 func (l *link) syncPeers() {
@@ -129,9 +130,29 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 	}
 }
 
+func (l *link) getPins() []string {
+	var pins []string
+	l.pinsLock.RLock()
+	pins = make([]string, len(l.pins))
+	copy(pins, l.pins)
+	l.pinsLock.RUnlock()
+	return pins
+}
+
 func (l *link) newLinkHashHandle() (protocol.ID, func(stream network.Stream)) {
 	return LinkHash, func(stream network.Stream) {
 		fmt.Println("link hash called")
+		var err error
+		defer stream.Close()
+		api, err := coreapi.NewCoreAPI(l.node)
+		if err != nil {
+			return
+		}
+
+		for _, peer := range ) {
+
+		}
+
 	}
 }
 
