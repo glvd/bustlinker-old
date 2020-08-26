@@ -18,6 +18,7 @@ import (
 const Version = "0.0.1"
 const LinkPeers = "/link" + "/peers/" + Version
 const LinkAddress = "/link" + "/address/" + Version
+const LinkHash = "/link" + "/hash/" + Version
 
 var protocols = []string{
 	LinkPeers,
@@ -122,12 +123,15 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 	}
 }
 
+func (l *link) newLinkHashHandle() (protocol.ID, func(stream network.Stream)) {
+	return LinkHash, func(stream network.Stream) {
+		fmt.Println("link hash called")
+	}
+}
+
 func (l *link) registerHandle() {
 	l.node.PeerHost.SetStreamHandler(l.newLinkPeersHandle())
-	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
-		fmt.Println("link addresses called")
-		fmt.Println(stream.Conn().RemoteMultiaddr())
-	})
+	l.node.PeerHost.SetStreamHandler(l.newLinkHashHandle())
 }
 
 func (l *link) getStream(id peer.ID) (network.Stream, error) {
@@ -237,10 +241,6 @@ func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
 		}
 		fmt.Println("connect success:", ai.String())
 	}
-}
-
-func (l *link) RegisterAddresses(address *PeerCache) {
-	l.addresses = address
 }
 
 func New(ctx context.Context, node *core.IpfsNode) Linker {
