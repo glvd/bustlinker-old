@@ -135,6 +135,9 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 func (l *link) getPins() []string {
 	var pins []string
 	l.pinsLock.RLock()
+	if l.pins == nil {
+		return pins
+	}
 	pins = make([]string, len(l.pins))
 	copy(pins, l.pins)
 	l.pinsLock.RUnlock()
