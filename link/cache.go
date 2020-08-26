@@ -11,10 +11,8 @@ import (
 )
 
 const (
-	cacheDir    = ".cache"
-	hashName    = "hash"
-	addressName = "address"
-	nodeName    = "node"
+	cacheDir = ".cache"
+	nodeName = "node"
 )
 
 type baseCache struct {
@@ -23,7 +21,7 @@ type baseCache struct {
 	cfg          config.CacheConfig
 }
 
-type hashCache struct {
+type Cache struct {
 	baseCache
 }
 
@@ -60,7 +58,7 @@ func newDataHashInfo(data core.Serializable) *DataHashInfo {
 	}
 }
 
-// Hash ...
+// HashCache ...
 func (v DataHashInfo) Hash() string {
 	return v.DataHash
 }
@@ -97,7 +95,7 @@ func NewCache(cfg config.CacheConfig, path, name string) Cacher {
 	}
 	itOpts := badger.DefaultIteratorOptions
 	itOpts.Reverse = true
-	return &hashCache{
+	return &Cache{
 		baseCache: baseCache{
 			cfg:          cfg,
 			iteratorOpts: itOpts,

@@ -8,78 +8,76 @@ import (
 	"sync"
 )
 
-type RootPath interface {
-	Path() string
-}
+const peerName = "address"
 
-type Address struct {
+type PeerCache struct {
 	lock      *sync.RWMutex
 	addresses map[peer.ID]peer.AddrInfo
 	cache     Cacher
 }
 
-func defaultAddress() *Address {
-	return &Address{
+func peerCache() *PeerCache {
+	return &PeerCache{
 		lock:      &sync.RWMutex{},
 		addresses: make(map[peer.ID]peer.AddrInfo),
 	}
 }
 
-func NewAddress(node *core.IpfsNode) *Address {
-	addr := defaultAddress()
+func NewAddress(node *core.IpfsNode) *PeerCache {
+	cache := peerCache()
 	cfg, err := node.Repo.LinkConfig()
 	if err != nil {
-		return addr
+		return cache
 	}
 	fmt.Println("cache initialized")
 
-	addr.cache = NewCache(cfg.Address, node.Repo.Path(), addressName)
-	return addr
+	cache.cache = NewCache(cfg.Address, node.Repo.Path(), peerName)
+	return cache
 }
 
-func (a *Address) CheckPeerAddress(id peer.ID) (b bool) {
-	a.lock.RLock()
-	_, b = a.addresses[id]
-	a.lock.RUnlock()
+func (c *PeerCache) CheckPeerAddress(id peer.ID) (b bool) {
+	c.lock.RLock()
+	_, b = c.addresses[id]
+	c.lock.RUnlock()
 	return
 }
 
-func (a *Address) AddPeerAddress(addr peer.AddrInfo) (b bool) {
-	a.lock.RLock()
-	_, b = a.addresses[addr.ID]
-	a.lock.RUnlock()
+func (c *PeerCache) AddPeerAddress(addr peer.AddrInfo) (b bool) {
+	c.lock.RLock()
+	_, b = c.addresses[addr.ID]
+	c.lock.RUnlock()
 	if b {
 		return !b
 	}
-	a.lock.Lock()
-	_, b = a.addresses[addr.ID]
+	c.lock.Lock()
+	_, b = c.addresses[addr.ID]
 	if !b {
-		a.addresses[addr.ID] = addr
+		c.addresses[addr.ID] = addr
 	}
-	a.lock.Unlock()
+	c.lock.Unlock()
 	return !b
 }
 
-func (a *Address) GetAddress(id peer.ID) (ai peer.AddrInfo, b bool) {
-	a.lock.RLock()
-	ai, b = a.addresses[id]
-	a.lock.RUnlock()
+func (c *PeerCache) GetAddress(id peer.ID) (ai peer.AddrInfo, b bool) {
+	c.lock.RLock()
+	ai, b = c.addresses[id]
+	c.lock.RUnlock()
 	return ai, b
 }
 
-func (a *Address) Peers() (ids []peer.ID) {
-	a.lock.RLock()
-	for id := range a.addresses {
+func (c *PeerCache) Peers() (ids []peer.ID) {
+	c.lock.RLock()
+	for id := range c.addresses {
 		ids = append(ids, id)
 	}
-	a.lock.RUnlock()
+	c.lock.RUnlock()
 	return
 }
 
-func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
-	address, b := a.GetAddress(new.ID)
+func (c *PeerCache) UpdatePeerAddress(new peer.AddrInfo) bool {
+	address, b := c.GetAddress(new.ID)
 	if !b {
-		return a.AddPeerAddress(new)
+		return c.AddPeerAddress(new)
 	}
 
 	mark := make(map[string]bool)
@@ -97,17 +95,17 @@ func (a *Address) UpdatePeerAddress(new peer.AddrInfo) bool {
 		return false
 	}
 
-	a.lock.Lock()
-	a.addresses[new.ID] = new
-	a.lock.Unlock()
+	c.lock.Lock()
+	c.addresses[new.ID] = new
+	c.lock.Unlock()
 	return true
 }
 
-func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error) {
+func (c *PeerCache) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error) {
 	ai := make(chan peer.AddrInfo)
 	go func() {
 		defer close(ai)
-		a.cache.Range(func(hash string, value string) bool {
+		c.cache.Range(func(hash string, value string) bool {
 			log.Infow("range node", "hash", hash, "value", value)
 			var info peer.AddrInfo
 			err := info.UnmarshalJSON([]byte(value))
@@ -128,18 +126,18 @@ func (a *Address) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error)
 }
 
 // SaveNode ...
-func (a *Address) SaveAddress(ctx context.Context) (err error) {
+func (c *PeerCache) SaveAddress(ctx context.Context) (err error) {
 	go func() {
-		for _, id := range a.Peers() {
+		for _, id := range c.Peers() {
 			select {
 			case <-ctx.Done():
 				return
 			default:
-				address, b := a.GetAddress(id)
+				address, b := c.GetAddress(id)
 				if !b {
 					continue
 				}
-				err := a.cache.Store(id.Pretty(), address)
+				err := c.cache.Store(id.Pretty(), address)
 				if err != nil {
 					return
 				}

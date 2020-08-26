@@ -181,8 +181,8 @@ Headers.
 		cmds.BoolOption(enableMultiplexKwd, "DEPRECATED"),
 
 		// TODO: add way to override addresses. tricky part: updating the config if also --init.
-		// cmds.StringOption(apiAddrKwd, "Address for the daemon rpc API (overrides config)"),
-		// cmds.StringOption(swarmAddrKwd, "Address for the swarm socket (overrides config)"),
+		// cmds.StringOption(apiAddrKwd, "PeerCache for the daemon rpc API (overrides config)"),
+		// cmds.StringOption(swarmAddrKwd, "PeerCache for the swarm socket (overrides config)"),
 	},
 	Subcommands: map[string]*cmds.Command{},
 	Run:         daemonFunc,

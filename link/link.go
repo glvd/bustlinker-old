@@ -9,6 +9,7 @@ import (
 	"github.com/godcong/scdt"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/multiformats/go-multiaddr"
 	"sync"
 	"time"
@@ -32,8 +33,8 @@ type Linker interface {
 type link struct {
 	ctx       context.Context
 	node      *core.IpfsNode
-	addresses *Address
-	hashes    *Hash
+	addresses *PeerCache
+	hashes    *HashCache
 }
 
 func (l *link) syncPeers() {
@@ -90,8 +91,8 @@ func checkAddrExist(addrs []multiaddr.Multiaddr, addr multiaddr.Multiaddr) bool 
 	return false
 }
 
-func (l *link) registerHandle() {
-	l.node.PeerHost.SetStreamHandler(LinkPeers, func(stream network.Stream) {
+func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
+	return LinkPeers, func(stream network.Stream) {
 		fmt.Println("link peer called")
 		var err error
 		defer stream.Close()
@@ -118,8 +119,11 @@ func (l *link) registerHandle() {
 			}
 			fmt.Println("to:", remoteID, stream.Conn().RemoteMultiaddr().String(), "send addresses:", info.String())
 		}
+	}
+}
 
-	})
+func (l *link) registerHandle() {
+	l.node.PeerHost.SetStreamHandler(l.newLinkPeersHandle())
 	l.node.PeerHost.SetStreamHandler(LinkAddress, func(stream network.Stream) {
 		fmt.Println("link addresses called")
 		fmt.Println(stream.Conn().RemoteMultiaddr())
@@ -235,7 +239,7 @@ func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
 	}
 }
 
-func (l *link) RegisterAddresses(address *Address) {
+func (l *link) RegisterAddresses(address *PeerCache) {
 	l.addresses = address
 }
 
