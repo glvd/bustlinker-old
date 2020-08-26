@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
-	"github.com/godcong/scdt"
+	"github.com/ipfs/interface-go-ipfs-core/options"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
@@ -80,6 +80,8 @@ func (l *link) Syncing() {
 				continue
 			}
 			wg.Add(1)
+			go l.syncPin()
+			wg.Add(1)
 			go l.getPeerAddress(wg, conn)
 			wg.Add(1)
 			go l.getRemoteHash(wg, conn)
@@ -139,20 +141,37 @@ func (l *link) getPins() []string {
 	return pins
 }
 
+func (l *link) addPin(pin string) {
+	l.pinsLock.Lock()
+	l.pins = append(l.pins, pin)
+	l.pinsLock.Unlock()
+}
+
+func (l *link) setPins(pins []string) {
+	p := make([]string, len(pins))
+	copy(p, pins)
+	l.pinsLock.Lock()
+	l.pins = p
+	l.pinsLock.Unlock()
+}
+
 func (l *link) newLinkHashHandle() (protocol.ID, func(stream network.Stream)) {
 	return LinkHash, func(stream network.Stream) {
 		fmt.Println("link hash called")
 		var err error
 		defer stream.Close()
-		api, err := coreapi.NewCoreAPI(l.node)
-		if err != nil {
-			return
+		for _, peer := range l.getPins() {
+			_, err = stream.Write([]byte(peer))
+			if err != nil {
+				log.Debugw("stream write error", "error", err)
+				return
+			}
+			_, err = stream.Write(NewLine)
+			if err != nil {
+				log.Debugw("stream write error", "error", err)
+				return
+			}
 		}
-
-		for _, peer := range ) {
-
-		}
-
 	}
 }
 
@@ -161,43 +180,8 @@ func (l *link) registerHandle() {
 	l.node.PeerHost.SetStreamHandler(l.newLinkHashHandle())
 }
 
-func (l *link) getStream(id peer.ID) (network.Stream, error) {
-	var s network.Stream
-	//var b bool
-	var err error
-	//l.streamLock.RLock()
-	//s, b = l.streams[id]
-	//l.streamLock.RUnlock()
-	//
-	//if b {
-	//	return s, nil
-	//}
-	s, err = l.node.PeerHost.NewStream(l.ctx, id, LinkPeers)
-	if err != nil {
-		return nil, err
-	}
-	//s.SetProtocol(LinkPeers)
-	//l.streamLock.Lock()
-	//_, b = l.streams[id]
-	//if !b {
-	//	l.streams[id] = s
-	//}
-	//l.streamLock.Unlock()
-	return s, nil
-}
-
-func (l *link) Conn(conn scdt.Connection) error {
-	return nil
-}
-
 func (l *link) Start() error {
 	fmt.Println("Link start")
-	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
-	//fmt.Println(l.node.PeerHost.Peerstore().GetProtocols(l.node.Identity))
-	//if err := l.node.PeerHost.Peerstore().AddProtocols(l.node.Identity, protocols...); err != nil {
-	//	return err
-	//}
-	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
 	l.registerHandle()
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
@@ -254,7 +238,7 @@ func (l *link) getAddCount(id peer.ID) int64 {
 }
 
 func (l *link) UpdatePeerAddress(ai peer.AddrInfo) error {
-	stream, err := l.getStream(ai.ID)
+	stream, err := l.node.PeerHost.NewStream(l.ctx, ai.ID, LinkPeers)
 	if err == nil {
 		stream.Close()
 		return nil
@@ -311,12 +295,32 @@ func (l *link) UpdateHash(hash string, id peer.ID) {
 	l.hashes.Add(hash, id)
 }
 
+func (l *link) syncPin() {
+	api, err := coreapi.NewCoreAPI(l.node)
+	if err != nil {
+		return
+	}
+	ls, err := api.Pin().Ls(l.ctx, options.Pin.Ls.Recursive())
+	if err != nil {
+		return
+	}
+
+	for pin := range ls {
+		fmt.Println(pin.Path().String())
+		l.addPin(pin.Path().String())
+	}
+}
+
 func New(ctx context.Context, node *core.IpfsNode) Linker {
 	return &link{
-		ctx:       ctx,
-		node:      node,
-		addresses: NewAddress(node),
-		hashes:    NewHash(node),
+		ctx:         ctx,
+		node:        node,
+		failedCount: make(map[peer.ID]int64),
+		failedLock:  &sync.RWMutex{},
+		pins:        nil,
+		pinsLock:    &sync.RWMutex{},
+		addresses:   NewAddress(node),
+		hashes:      NewHash(node),
 	}
 }
 
