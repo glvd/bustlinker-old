@@ -3,6 +3,7 @@ package link
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
@@ -32,8 +33,11 @@ type Linker interface {
 }
 
 type link struct {
-	ctx       context.Context
-	node      *core.IpfsNode
+	ctx         context.Context
+	node        *core.IpfsNode
+	failedCount map[peer.ID]int64
+	failedLock  sync.RWMutex
+
 	addresses *PeerCache
 	hashes    *HashCache
 }
@@ -211,36 +215,49 @@ func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 				continue
 			}
 			fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
-			l.UpdatePeerAddress(ai)
+			if err := l.UpdatePeerAddress(ai); err != nil {
+				log.Error("update peer address failed:", err)
+			}
 		}
 	}
 }
 
-func (l *link) AddPeerAddress(ai peer.AddrInfo) bool {
-	return l.addresses.AddPeerAddress(ai)
+func (l *link) getAddCount(id peer.ID) int64 {
+	count := int64(0)
+	l.failedLock.Lock()
+	count, l.failedCount[id] = l.failedCount[id], l.failedCount[id]+1
+	l.failedLock.Unlock()
+	return count
 }
 
-func (l *link) UpdatePeerAddress(ai peer.AddrInfo) {
+func (l *link) UpdatePeerAddress(ai peer.AddrInfo) error {
 	stream, err := l.getStream(ai.ID)
-	fmt.Println("update", ai.ID.Pretty(), "err", err)
 	if err == nil {
 		stream.Close()
-		return
+		return nil
 	}
-	fmt.Println("err", err)
+	log.Debug("stream connect failed:", err)
+	config, err := l.node.Repo.Config()
+	if err != nil {
+		return err
+	}
+
 	if l.addresses.UpdatePeerAddress(ai) {
+		count := l.getAddCount(ai.ID)
+		if count > config.Link.MaxAttempts {
+			return errors.New("connect failed max")
+		}
 		api, err := coreapi.NewCoreAPI(l.node)
 		if err != nil {
-			fmt.Println("err", err)
-			return
+			return err
 		}
 		err = api.Swarm().Connect(l.ctx, ai)
 		if err != nil {
-			fmt.Println("err", err)
-			return
+			return err
 		}
 		fmt.Println("connect success:", ai.String())
 	}
+	return nil
 }
 
 func New(ctx context.Context, node *core.IpfsNode) Linker {

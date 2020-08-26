@@ -14,9 +14,9 @@ type CacheConfig struct {
 }
 
 type LinkConfig struct {
-	//Addresses []string
-	Hash      CacheConfig
-	Address   CacheConfig
+	MaxAttempts int64
+	Hash        CacheConfig
+	Address     CacheConfig
 }
 
 // Config ...
@@ -25,9 +25,7 @@ type Config struct {
 	Link *LinkConfig
 }
 
-var DefaultBootstrapAddresses = []string{
-
-}
+var DefaultBootstrapAddresses = []string{}
 
 // Clone copies the config. Use when updating.
 func (c *Config) Clone() (*Config, error) {
