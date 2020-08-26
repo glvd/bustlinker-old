@@ -143,6 +143,12 @@ func (l *link) getPins() []string {
 	return pins
 }
 
+func (l *link) clearPin() {
+	l.pinsLock.Lock()
+	l.pins = nil
+	l.pinsLock.Unlock()
+}
+
 func (l *link) addPin(pin string) {
 	l.pinsLock.Lock()
 	l.pins = append(l.pins, pin)
@@ -308,7 +314,7 @@ func (l *link) syncPin() {
 		if err != nil {
 			return
 		}
-
+		l.clearPin()
 		for pin := range ls {
 			fmt.Println(pin.Path().Cid().String())
 			l.addPin(pin.Path().String())
