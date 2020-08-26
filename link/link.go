@@ -102,6 +102,7 @@ func (l *link) registerHandle() {
 		var err error
 		defer stream.Close()
 		remoteID := stream.Conn().RemotePeer()
+
 		if !checkAddrExist(l.node.Peerstore.Addrs(remoteID), stream.Conn().RemoteMultiaddr()) {
 			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
 		}
@@ -169,7 +170,7 @@ func (l *link) Start() error {
 	//}
 	//fmt.Println(l.node.Peerstore.GetProtocols(l.node.Identity))
 	l.registerHandle()
-	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	address, err := l.addresses.LoadAddress(ctx)
 	if err != nil {
