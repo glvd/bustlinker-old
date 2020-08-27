@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
+	"github.com/ipfs/interface-go-ipfs-core/path"
 	"go.uber.org/atomic"
 	"sync"
 )
@@ -46,6 +47,9 @@ func (p *pinning) Clear() {
 
 func (p *pinning) AddSync(pin string) {
 	p.syncing.Put(pin)
+	if !p.running.Load() {
+		p.Resume()
+	}
 }
 
 func (p *pinning) Add(pin string) {
@@ -66,6 +70,9 @@ func (p *pinning) Set(pins []string) {
 
 func (p *pinning) Pause() {
 	p.running.Store(false)
+	if p.running.CAS(true, false) {
+		p.cancel()
+	}
 }
 
 func (p *pinning) Resume() {
@@ -81,8 +88,28 @@ func (p *pinning) run() {
 		log.Error("run pinning failed:", err)
 		return
 	}
+	var pstr string
+	var b bool
+	var newPath path.Path
 	for p.running.Load() {
-		api.Pin()
+		v := p.syncing.Get()
+		if v == nil {
+			return
+		}
+		pstr, b = v.(string)
+		if !b {
+			continue
+		}
+		newPath = path.New(pstr)
+		_, b2, err := api.Pin().IsPinned(p.ctx, newPath)
+		if !b2 && err != nil {
+			continue
+		}
+		err = api.Pin().Add(p.ctx, newPath)
+		if err != nil {
+			continue
+		}
+		p.Add(pstr)
 	}
 }
 

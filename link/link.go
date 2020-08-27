@@ -284,7 +284,7 @@ func (l *link) syncPin() {
 		}
 		for pin := range ls {
 			fmt.Println(pin.Path().Cid().String())
-			l.pinning.Add(pin.Path().String())
+			l.pinning.AddSync(pin.Path().String())
 		}
 		time.Sleep(30 * time.Second)
 	}
