@@ -2,6 +2,7 @@ package link
 
 import (
 	"context"
+	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core/path"
@@ -105,6 +106,7 @@ func (p *pinning) run() {
 		if !b2 && err != nil {
 			continue
 		}
+		fmt.Println("pinning:", pstr)
 		err = api.Pin().Add(p.ctx, newPath)
 		if err != nil {
 			continue
