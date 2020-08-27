@@ -8,6 +8,7 @@ import (
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core/options"
+	"github.com/ipfs/interface-go-ipfs-core/path"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
@@ -81,7 +82,7 @@ func (l *link) Syncing() {
 				continue
 			}
 			wg.Add(1)
-			go l.getPeerAddress(wg, conn)
+			go l.getRemotePeerAddress(wg, conn)
 			wg.Add(1)
 			go l.getRemoteHash(wg, conn)
 		}
@@ -170,7 +171,7 @@ func (l *link) Start() error {
 	return nil
 }
 
-func (l *link) getPeerAddress(wg *sync.WaitGroup, conn network.Conn) {
+func (l *link) getRemotePeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 	defer wg.Done()
 	s, err := l.node.PeerHost.NewStream(l.ctx, conn.RemotePeer(), LinkPeers)
 	if err != nil {
@@ -263,13 +264,14 @@ func (l *link) getRemoteHash(wg *sync.WaitGroup, conn network.Conn) {
 				return
 			}
 			fmt.Println("from:", id, "received hash:", string(line))
-			l.UpdateHash(string(line), id)
+			l.UpdateHash(path.New(string(line)), id)
 		}
 	}
 }
 
-func (l *link) UpdateHash(hash string, id peer.ID) {
-	l.hashes.Add(hash, id)
+func (l *link) UpdateHash(hash path.Path, id peer.ID) {
+	l.hashes.Add(hash.String(), id)
+	l.pinning.AddSync(hash.String())
 }
 
 func (l *link) syncPin() {
@@ -283,8 +285,8 @@ func (l *link) syncPin() {
 			return
 		}
 		for pin := range ls {
-			fmt.Println(pin.Path().Cid().String())
-			l.pinning.AddSync(pin.Path().String())
+			fmt.Println(pin.Path().String())
+			l.pinning.Add(pin.Path().String())
 		}
 		time.Sleep(30 * time.Second)
 	}

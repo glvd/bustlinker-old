@@ -14,6 +14,7 @@ type Pinning interface {
 	Get() []string
 	Clear()
 	AddSync(pin string)
+	Add(pin string)
 	Set(pins []string)
 }
 
@@ -102,12 +103,12 @@ func (p *pinning) run() {
 		if !b {
 			continue
 		}
-		newPath = path.New(pstr)
+
 		_, b2, err := api.Pin().IsPinned(p.ctx, newPath)
-		if !b2 && err != nil {
+		if b2 || err != nil {
 			continue
 		}
-		fmt.Println("pinning:", pstr)
+		fmt.Println("pinning:", pstr, b2, err)
 		err = api.Pin().Add(p.ctx, newPath)
 		if err != nil {
 			continue
