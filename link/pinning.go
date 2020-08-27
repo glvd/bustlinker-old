@@ -117,6 +117,7 @@ func newPinning(node *core.IpfsNode) Pinning {
 	p := &pinning{
 		running:  atomic.NewBool(true),
 		node:     node,
+		syncing:  &sync.Pool{},
 		pins:     make(map[string]bool),
 		pinsLock: &sync.RWMutex{},
 	}
