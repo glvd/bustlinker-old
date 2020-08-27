@@ -83,6 +83,7 @@ func (p *pinning) Resume() {
 }
 
 func (p *pinning) run() {
+	defer p.Pause()
 	p.ctx, p.cancel = context.WithCancel(context.TODO())
 	api, err := coreapi.NewCoreAPI(p.node)
 	if err != nil {
