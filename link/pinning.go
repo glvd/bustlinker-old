@@ -104,6 +104,7 @@ func (p *pinning) run() {
 			continue
 		}
 
+		newPath = path.New(pstr)
 		_, b2, err := api.Pin().IsPinned(p.ctx, newPath)
 		if b2 || err != nil {
 			continue
