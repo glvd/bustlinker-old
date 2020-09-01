@@ -103,6 +103,7 @@ require (
 	github.com/whyrusleeping/go-sysinfo v0.0.0-20190219211824-4a357d4b90b1
 	github.com/whyrusleeping/multiaddr-filter v0.0.0-20160516205228-e903e4adabd7
 	github.com/whyrusleeping/tar-utils v0.0.0-20180509141711-8c6c8ba81d5c
+	github.com/xormsharp/builder v0.3.7 // indirect
 	go.uber.org/atomic v1.6.0
 	go.uber.org/fx v1.12.0
 	go.uber.org/zap v1.15.0
