@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
+	iface "github.com/ipfs/interface-go-ipfs-core"
 	"github.com/ipfs/interface-go-ipfs-core/options"
 	"github.com/ipfs/interface-go-ipfs-core/path"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -279,19 +280,21 @@ func (l *link) syncPin() {
 	if err != nil {
 		return
 	}
+	t := time.NewTimer(30 * time.Second)
+	var pin iface.Pin
 	for {
-		ls, err := api.Pin().Ls(l.ctx, options.Pin.Ls.Recursive())
-		if err != nil {
-			return
-		}
-		for pin := range ls {
-			if pin == nil {
-				break
+		select {
+		case <-t.C:
+			ls, err := api.Pin().Ls(l.ctx, options.Pin.Ls.Recursive())
+			if err != nil {
+				return
 			}
-			fmt.Println("syncing", pin.Path().String())
-			l.pinning.Add(pin.Path().String())
+			for pin = range ls {
+				fmt.Println("syncing", pin.Path().String())
+				l.pinning.Add(pin.Path().String())
+			}
+			t.Reset(30 * time.Second)
 		}
-		time.Sleep(30 * time.Second)
 	}
 }
 
