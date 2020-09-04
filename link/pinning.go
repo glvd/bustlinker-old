@@ -2,7 +2,6 @@ package link
 
 import (
 	"context"
-	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/glvd/bustlinker/core/coreapi"
 	"github.com/ipfs/interface-go-ipfs-core/path"
@@ -88,33 +87,38 @@ func (p *pinning) run() {
 	p.ctx, p.cancel = context.WithCancel(context.TODO())
 	api, err := coreapi.NewCoreAPI(p.node)
 	if err != nil {
-		log.Error("run pinning failed:", err)
+		log.Errorw("failed get core api on pinning", "error", err)
 		return
 	}
 	var pstr string
 	var b bool
 	var newPath path.Path
 	for p.running.Load() {
-		v := p.syncing.Get()
-		if v == nil {
+		select {
+		case <-p.ctx.Done():
 			return
-		}
-		pstr, b = v.(string)
-		if !b {
-			continue
-		}
+		default:
+			v := p.syncing.Get()
+			if v == nil {
+				return
+			}
+			pstr, b = v.(string)
+			if !b {
+				continue
+			}
 
-		newPath = path.New(pstr)
-		_, b2, err := api.Pin().IsPinned(p.ctx, newPath)
-		if b2 || err != nil {
-			continue
+			newPath = path.New(pstr)
+			_, b2, err := api.Pin().IsPinned(p.ctx, newPath)
+			log.Infow("check pin hash", "hash", pstr, "exist", b2, "error", err)
+			if b2 || err != nil {
+				continue
+			}
+			err = api.Pin().Add(p.ctx, newPath)
+			if err != nil {
+				continue
+			}
+			p.Add(pstr)
 		}
-		fmt.Println("pinning:", pstr, b2, err)
-		err = api.Pin().Add(p.ctx, newPath)
-		if err != nil {
-			continue
-		}
-		p.Add(pstr)
 	}
 }
 
