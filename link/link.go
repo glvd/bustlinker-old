@@ -235,7 +235,7 @@ func (l *link) getRemoteHash(wg *sync.WaitGroup, conn network.Conn) {
 			if err != nil {
 				return
 			}
-			fmt.Println("from:", id, "received hash:", string(line))
+			log.Debugw("received remote hash", "from", id, "hash", string(line))
 			l.UpdateHash(path.New(string(line)), id)
 		}
 	}
