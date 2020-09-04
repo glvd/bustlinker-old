@@ -13,8 +13,13 @@ type CacheConfig struct {
 	BackupSeconds int
 }
 
+type Pinning struct {
+	PerSeconds int
+}
+
 type LinkConfig struct {
 	MaxAttempts int64
+	Pinning     Pinning
 	Hash        CacheConfig
 	Address     CacheConfig
 }
@@ -26,6 +31,7 @@ type Config struct {
 }
 
 var DefaultBootstrapAddresses = []string{}
+var DefaultPinningSeconds = 30
 
 // Clone copies the config. Use when updating.
 func (c *Config) Clone() (*Config, error) {
@@ -68,7 +74,18 @@ func ToMap(conf *Config) (map[string]interface{}, error) {
 }
 
 func InitLinkConfig(repoPath string, conf *Config) (*LinkConfig, error) {
-	var cfg LinkConfig
+	cfg := LinkConfig{
+		MaxAttempts: 0,
+		Pinning: Pinning{
+			PerSeconds: DefaultPinningSeconds,
+		},
+		Hash: CacheConfig{
+			BackupSeconds: 0,
+		},
+		Address: CacheConfig{
+			BackupSeconds: 0,
+		},
+	}
 	//cfg.Addresses = defaultLinkAddresses()
 	return &cfg, nil
 }

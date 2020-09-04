@@ -280,7 +280,12 @@ func (l *link) syncPin() {
 	if err != nil {
 		return
 	}
-	t := time.NewTimer(30 * time.Second)
+	lnk, err := l.node.Repo.LinkConfig()
+	if err != nil {
+		return
+	}
+
+	t := time.NewTimer(time.Duration(lnk.Pinning.PerSeconds) * time.Second)
 	var pin iface.Pin
 	for {
 		select {
@@ -290,7 +295,7 @@ func (l *link) syncPin() {
 				return
 			}
 			for pin = range ls {
-				fmt.Println("syncing", pin.Path().String())
+				log.Debugw("add to pin", "hash", pin.Path().String())
 				l.pinning.Add(pin.Path().String())
 			}
 			t.Reset(30 * time.Second)
