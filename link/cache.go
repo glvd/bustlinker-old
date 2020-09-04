@@ -89,6 +89,7 @@ func NewCache(cfg config.CacheConfig, path, name string) Cacher {
 	opts.ValueLogLoadingMode = options.FileIO
 	opts.TableLoadingMode = options.MemoryMap
 	opts.MaxTableSize = 16 << 20
+	opts.Logger = log
 	db, err := badger.Open(opts)
 	if err != nil {
 		panic(err)
