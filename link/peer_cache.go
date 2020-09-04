@@ -29,7 +29,7 @@ func NewAddress(node *core.IpfsNode) *PeerCache {
 	if err != nil {
 		return cache
 	}
-	fmt.Println("cache initialized")
+	fmt.Println("peer cache initialized")
 
 	cache.cache = NewCache(cfg.Address, node.Repo.Path(), peerName)
 	return cache

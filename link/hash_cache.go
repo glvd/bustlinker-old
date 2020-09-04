@@ -1,7 +1,6 @@
 package link
 
 import (
-	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"sync"
@@ -28,7 +27,7 @@ func NewHash(node *core.IpfsNode) *HashCache {
 	if err != nil {
 		return cache
 	}
-	fmt.Println("cache initialized")
+	log.Info("hash cache initialized")
 	cache.cache = NewCache(cfg.Hash, node.Repo.Path(), hashName)
 	return cache
 }
