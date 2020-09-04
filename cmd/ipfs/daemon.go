@@ -396,8 +396,6 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		return err
 	}
 
-	pprofErrc, _ := servePprof(req, cctx)
-
 	// construct fuse mountpoints - if the user provided the --mount flag
 	mount, _ := req.Options[mountKwd].(bool)
 	if mount && offline {
@@ -457,7 +455,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	// collect long-running errors and block for shutdown
 	// TODO(cryptix): our fuse currently doesn't follow this pattern for graceful shutdown
 	var errs error
-	for err := range merge(apiErrc, gwErrc, gcErrc, lnkErrc, pprofErrc) {
+	for err := range merge(apiErrc, gwErrc, gcErrc, lnkErrc) {
 		if err != nil {
 			errs = multierror.Append(errs, err)
 		}
@@ -467,65 +465,8 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 }
 
 func serveLink(req *cmds.Request, cctx *oldcmds.Context, node *core.IpfsNode) (<-chan error, error) {
-	//cfg, err := node.Repo.LinkConfig()
-	//if err != nil {
-	//	return nil, err
-	//}
-	//listeners, err := sockets.TakeListeners("io.glvd.gatway")
-	//if err != nil {
-	//	return nil, fmt.Errorf("serveLinkGateway: socket activation failed: %s", err)
-	//}
-	//
-	//listenerAddrs := make(map[string]bool, len(listeners))
-	//for _, listener := range listeners {
-	//	listenerAddrs[string(listener.Multiaddr().Bytes())] = true
-	//}
-	//for _, addr := range cfg.Addresses {
-	//	gatewayMaddr, err := ma.NewMultiaddr(addr)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("serveLinkGateway: invalid gateway address: %q (err: %s)", addr, err)
-	//	}
-	//
-	//	if listenerAddrs[string(gatewayMaddr.Bytes())] {
-	//		continue
-	//	}
-	//
-	//	gwLis, err := manet.Listen(gatewayMaddr)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("serveLinkGateway: manet.Listen(%s) failed: %s", gatewayMaddr, err)
-	//	}
-	//	listenerAddrs[string(gatewayMaddr.Bytes())] = true
-	//	listeners = append(listeners, gwLis)
-	//}
 	lnk := link.New(req.Context, node)
-
-	//errc := make(chan error)
-	//var wg sync.WaitGroup
-	//for _, lis := range listeners {
-	//	wg.Add(1)
-	//	go func(lis manet.Listener) {
-	//		defer wg.Done()
-	//		errc <- lnk.ListenAndServe(lis)
-	//	}(lis)
-	//}
-	//
-	//go func() {
-	//	wg.Wait()
-	//	close(errc)
-	//}()
-
 	return nil, lnk.Start()
-}
-
-func servePprof(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, error) {
-	errc := make(chan error)
-	go func() {
-		err := http.ListenAndServe(":6060", nil)
-		if err != nil {
-			errc <- err
-		}
-	}()
-	return errc, nil
 }
 
 // serveHTTPApi collects options, creates listener, prints status message and starts serving requests
@@ -685,7 +626,9 @@ func serveHTTPGateway(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, e
 	}
 
 	listenerAddrs := make(map[string]bool, len(listeners))
+
 	for _, listener := range listeners {
+		fmt.Println("listeners", listener.Multiaddr().String())
 		listenerAddrs[string(listener.Multiaddr().Bytes())] = true
 	}
 
