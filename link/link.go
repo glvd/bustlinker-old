@@ -240,7 +240,7 @@ func (l *link) UpdatePeerAddress(ai peer.AddrInfo) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("connect success:", ai.String())
+		log.Infow("connect success", "remote", ai.String())
 	}
 	return nil
 }
