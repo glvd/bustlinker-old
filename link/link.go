@@ -45,35 +45,6 @@ type link struct {
 	pinning   Pinning
 }
 
-func (l *link) syncPeers() {
-	//listener, err := scdt.NewListener(l.node.Identity.String())
-	//if err != nil {
-	//	return
-	//}
-	//l.Listener = listener
-	//config, err := l.node.Repo.LinkConfig()
-	//if err != nil {
-	//	return
-	//}
-
-	//for _, address := range config.Addresses {
-	//	ma, err := multiaddr.NewMultiaddr(address)
-	//	if err != nil {
-	//		continue
-	//	}
-	//	nw, ip, err := manet.DialArgs(ma)
-	//	if err != nil {
-	//		return
-	//	}
-	//	listen, err := reuse.Listen(nw, ip)
-	//	if err != nil {
-	//		return
-	//	}
-	//	l.Listener.Listen(nw, listen)
-	//}
-
-}
-
 func (l *link) Syncing() {
 	go l.syncPin()
 	for {

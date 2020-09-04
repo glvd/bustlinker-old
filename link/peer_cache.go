@@ -80,39 +80,42 @@ func (c *PeerCache) UpdatePeerAddress(new peer.AddrInfo) bool {
 		return c.AddPeerAddress(new)
 	}
 
+	updated := false
+	newAddr := address
 	mark := make(map[string]bool)
 	for _, addr := range address.Addrs {
 		mark[addr.String()] = true
 	}
 
 	for _, addr := range new.Addrs {
-		if mark[addr.String()] {
-			delete(mark, addr.String())
+		if !mark[addr.String()] {
+			updated = true
+			newAddr.Addrs = append(newAddr.Addrs, addr)
 		}
 	}
 
-	if len(mark) == 0 {
-		return false
+	if !updated {
+		return updated
 	}
 
 	c.lock.Lock()
-	c.addresses[new.ID] = new
+	c.addresses[new.ID] = newAddr
 	c.lock.Unlock()
-	return true
+	return updated
 }
 
 func (c *PeerCache) LoadAddress(ctx context.Context) (<-chan peer.AddrInfo, error) {
 	ai := make(chan peer.AddrInfo)
 	go func() {
 		defer close(ai)
+
 		c.cache.Range(func(hash string, value string) bool {
-			log.Infow("range node", "hash", hash, "value", value)
+			log.Infow("per cache ranging", "hash", hash, "value", value)
 			var info peer.AddrInfo
 			err := info.UnmarshalJSON([]byte(value))
-			//err := json.Unmarshal([]byte(value), &ninfo)
 			if err != nil {
-				log.Errorw("load addr info failed", "err", err)
-				return true
+				log.Errorw("unmarshal addr info failed in range", "err", err)
+				return false
 			}
 			select {
 			case <-ctx.Done():
