@@ -59,7 +59,7 @@ func (l *link) Syncing() {
 			go l.getRemoteHash(wg, conn)
 		}
 		wg.Wait()
-		fmt.Println("Wait for next loop")
+		log.Debug("waiting for next loop")
 		time.Sleep(30 * time.Second)
 	}
 }
@@ -75,7 +75,7 @@ func checkAddrExist(addrs []multiaddr.Multiaddr, addr multiaddr.Multiaddr) bool 
 
 func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 	return LinkPeers, func(stream network.Stream) {
-		fmt.Println("link peer called")
+		log.Debug("link peer called")
 		var err error
 		defer stream.Close()
 		remoteID := stream.Conn().RemotePeer()
@@ -85,7 +85,7 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 		}
 
 		peers := l.node.PeerHost.Network().Peers()
-		fmt.Println("total:", len(peers))
+		log.Infow("get all peers", "total", len(peers))
 		for _, peer := range peers {
 			info := l.node.Peerstore.PeerInfo(peer)
 			json, _ := info.MarshalJSON()
@@ -99,14 +99,14 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 				log.Debugw("stream write error", "error", err)
 				return
 			}
-			fmt.Println("to:", remoteID, stream.Conn().RemoteMultiaddr().String(), "send addresses:", info.String())
+			log.Debugw("peer sent success", "to", remoteID, stream.Conn().RemoteMultiaddr().String(), "addr", info.String())
 		}
 	}
 }
 
 func (l *link) newLinkHashHandle() (protocol.ID, func(stream network.Stream)) {
 	return LinkHash, func(stream network.Stream) {
-		fmt.Println("link hash called")
+		log.Debug("link hash called")
 		var err error
 		defer stream.Close()
 		for _, peer := range l.pinning.Get() {
@@ -164,13 +164,13 @@ func (l *link) getRemotePeerAddress(wg *sync.WaitGroup, conn network.Conn) {
 			ai := peer.AddrInfo{}
 			err = ai.UnmarshalJSON(line)
 			if err != nil {
-				fmt.Println("unmarlshal json:", string(line), err)
+				log.Error("unmarlshal json failed", "line", string(line), "error", err)
 				return
 			}
 			if ai.ID == l.node.Identity {
 				continue
 			}
-			fmt.Println("from:", conn.RemotePeer().Pretty(), "received new addresses:", ai.String(), len(ai.Addrs))
+			log.Debugw("receive address", "from", conn.RemotePeer().Pretty(), "addrinfo", ai.String(), "addr size", len(ai.Addrs))
 			if err := l.UpdatePeerAddress(ai); err != nil {
 				log.Error("update peer address failed:", err)
 			}
