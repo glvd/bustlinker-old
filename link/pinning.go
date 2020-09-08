@@ -108,9 +108,9 @@ func (p *pinning) run() {
 			}
 
 			newPath = path.New(pstr)
-			_, b2, err := api.Pin().IsPinned(p.ctx, newPath)
+			typ, b2, err := api.Pin().IsPinned(p.ctx, newPath)
 			log.Infow("check pin hash", "hash", pstr, "exist", b2, "error", err)
-			if b2 || err != nil {
+			if (b2 && typ == "recursive") || err != nil {
 				continue
 			}
 			err = api.Pin().Add(p.ctx, newPath)
