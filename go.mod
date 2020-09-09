@@ -12,7 +12,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.1.0
 	github.com/glvd/accipfs v0.0.1
 	github.com/go-bindata/go-bindata/v3 v3.1.3
-	github.com/godcong/scdt v0.0.23
 	github.com/gogo/protobuf v1.3.1
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/hashicorp/golang-lru v0.5.4
@@ -95,7 +94,6 @@ require (
 	github.com/multiformats/go-multihash v0.0.14
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/portmapping/go-reuse v0.0.3
 	github.com/prometheus/client_golang v1.6.0
 	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d
@@ -103,7 +101,6 @@ require (
 	github.com/whyrusleeping/go-sysinfo v0.0.0-20190219211824-4a357d4b90b1
 	github.com/whyrusleeping/multiaddr-filter v0.0.0-20160516205228-e903e4adabd7
 	github.com/whyrusleeping/tar-utils v0.0.0-20180509141711-8c6c8ba81d5c
-	github.com/xormsharp/builder v0.3.7 // indirect
 	go.uber.org/atomic v1.6.0
 	go.uber.org/fx v1.12.0
 	go.uber.org/zap v1.15.0
