@@ -132,13 +132,25 @@ func (l *link) registerHandle() {
 func (l *link) Start() error {
 	fmt.Println("Link start")
 	l.registerHandle()
-	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+	to := time.Duration(5 * time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), to)
 	defer cancel()
 	address, err := l.addresses.LoadAddress(ctx)
 	if err != nil {
 		return err
 	}
-	l.addresses.UpdatePeerAddress(<-address)
+	t := time.NewTimer(to)
+UpdateCase:
+	for {
+		select {
+		case <-t.C:
+			break UpdateCase
+		case <-ctx.Done():
+			break UpdateCase
+		default:
+			l.addresses.UpdatePeerAddress(<-address)
+		}
+	}
 	go l.Syncing()
 	return nil
 }
