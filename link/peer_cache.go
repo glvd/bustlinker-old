@@ -2,6 +2,7 @@ package link
 
 import (
 	"context"
+	"fmt"
 	"github.com/glvd/bustlinker/core"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"sync"
@@ -81,13 +82,13 @@ func (c *PeerCache) UpdatePeerAddress(new peer.AddrInfo) bool {
 
 	updated := false
 	newAddr := address
-	mark := make(map[string]bool)
+	mark := make(map[fmt.Stringer]bool)
 	for _, addr := range address.Addrs {
-		mark[addr.String()] = true
+		mark[addr] = true
 	}
 
 	for _, addr := range new.Addrs {
-		if !mark[addr.String()] {
+		if !mark[addr] {
 			updated = true
 			newAddr.Addrs = append(newAddr.Addrs, addr)
 		}
