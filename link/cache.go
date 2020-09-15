@@ -12,7 +12,6 @@ import (
 
 const (
 	cacheDir = ".cache"
-	nodeName = "node"
 )
 
 type baseCache struct {
@@ -22,10 +21,6 @@ type baseCache struct {
 }
 
 type Cache struct {
-	baseCache
-}
-
-type nodeCache struct {
 	baseCache
 }
 
@@ -76,12 +71,18 @@ func (v *DataHashInfo) Unmarshal(b []byte) error {
 // NewCache ...
 func NewCache(cfg config.CacheConfig, path, name string) Cacher {
 	path = filepath.Join(path, name)
-	_, err := os.Stat(path)
+	var err error
+	_, err = os.Stat(path)
 	if err != nil && os.IsNotExist(err) {
 		err := os.MkdirAll(path, 0755)
 		if err != nil {
 			panic(err)
 		}
+	}
+	c := &Cache{
+		baseCache: baseCache{
+			cfg: cfg,
+		},
 	}
 	opts := badger.DefaultOptions(path)
 	opts.CompactL0OnClose = false
@@ -90,19 +91,13 @@ func NewCache(cfg config.CacheConfig, path, name string) Cacher {
 	opts.TableLoadingMode = options.MemoryMap
 	opts.MaxTableSize = 16 << 20
 	opts.Logger = log
-	db, err := badger.Open(opts)
+	c.db, err = badger.Open(opts)
 	if err != nil {
 		panic(err)
 	}
-	itOpts := badger.DefaultIteratorOptions
-	itOpts.Reverse = true
-	return &Cache{
-		baseCache: baseCache{
-			cfg:          cfg,
-			iteratorOpts: itOpts,
-			db:           db,
-		},
-	}
+	c.iteratorOpts = badger.DefaultIteratorOptions
+	c.iteratorOpts.Reverse = true
+	return c
 }
 
 func (c *baseCache) UpdateBytes(hash string, b []byte) error {
