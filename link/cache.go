@@ -115,7 +115,6 @@ func (c *baseCache) UpdateBytes(hash string, b []byte) error {
 			return item.Value(func(val []byte) error {
 				return txn.Set([]byte(hash), b)
 			})
-			return nil
 		})
 }
 
