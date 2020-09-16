@@ -3,6 +3,11 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	oldcmds "github.com/glvd/bustlinker/commands"
+	"github.com/glvd/bustlinker/core/commands/e"
+	config "github.com/ipfs/go-ipfs-config"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,7 +16,9 @@ import (
 	"text/tabwriter"
 
 	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
+	ke "github.com/glvd/bustlinker/core/commands/keyencode"
 
+	"github.com/glvd/bustlinker/repo/fsrepo"
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	options "github.com/ipfs/interface-go-ipfs-core/options"
 )
@@ -515,7 +522,7 @@ func doRotate(out io.Writer, repoRoot string, oldKey string, algorithm string, n
 	}
 
 	// Save old identity to keystore
-	oldPrivKey, err := cfg.Identity.DecodePrivateKey("")
+	oldPrivKey, err := cfg.IPFS.Identity.DecodePrivateKey("")
 	if err != nil {
 		return fmt.Errorf("decoding old private key (%v)", err)
 	}
@@ -525,7 +532,7 @@ func doRotate(out io.Writer, repoRoot string, oldKey string, algorithm string, n
 	}
 
 	// Update identity
-	cfg.Identity = identity
+	cfg.IPFS.Identity = identity
 
 	// Write config file to repo
 	if err = repo.SetConfig(cfg); err != nil {

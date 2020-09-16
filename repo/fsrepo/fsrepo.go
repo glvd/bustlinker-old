@@ -403,7 +403,7 @@ func (r *FSRepo) openConfig() error {
 	if err != nil {
 		return err
 	}
-	r.config = conf
+	r.config.IPFS = conf
 	return nil
 }
 
