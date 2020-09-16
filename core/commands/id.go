@@ -13,7 +13,7 @@ import (
 	core "github.com/glvd/bustlinker/core"
 	cmdenv "github.com/glvd/bustlinker/core/commands/cmdenv"
 
-	ke "github.com/glvd/o-ipfs/core/commands/keyencode"
+	ke "github.com/glvd/bustlinker/core/commands/keyencode"
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	ic "github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/host"
