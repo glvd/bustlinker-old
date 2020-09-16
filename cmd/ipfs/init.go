@@ -12,11 +12,12 @@ import (
 
 	assets "github.com/glvd/bustlinker/assets"
 	oldcmds "github.com/glvd/bustlinker/commands"
+	config "github.com/glvd/bustlinker/config"
 	core "github.com/glvd/bustlinker/core"
+	"github.com/glvd/bustlinker/core/commands"
 	namesys "github.com/glvd/bustlinker/namesys"
 	fsrepo "github.com/glvd/bustlinker/repo/fsrepo"
 
-	config "github.com/glvd/bustlinker/config"
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	files "github.com/ipfs/go-ipfs-files"

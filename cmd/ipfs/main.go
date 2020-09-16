@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"runtime/pprof"
-	"strings"
 	"time"
 
 	util "github.com/glvd/bustlinker/cmd/ipfs/util"
