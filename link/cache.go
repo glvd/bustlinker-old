@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/dgraph-io/badger/v2"
 	"github.com/dgraph-io/badger/v2/options"
-	"github.com/glvd/accipfs/core"
 	"github.com/glvd/bustlinker/config"
 	"os"
 	"path/filepath"
@@ -41,16 +40,7 @@ type CacheUpdater interface {
 
 // DataHashInfo ...
 type DataHashInfo struct {
-	DataHash string            `json:"data_hash"`
-	DataInfo core.Serializable `json:"data_info"`
-	AddrInfo core.AddrInfo     `json:"addr_info"`
-}
-
-func newDataHashInfo(data core.Serializable) *DataHashInfo {
-	return &DataHashInfo{
-		DataHash: data.Hash(),
-		DataInfo: data,
-	}
+	DataHash string `json:"data_hash"`
 }
 
 // HashCache ...
