@@ -1,6 +1,7 @@
 package corehttp
 
 import (
+	ipfspath "github.com/ipfs/go-path"
 	"html/template"
 	"net/url"
 	"path"
