@@ -109,7 +109,6 @@ type FSRepo struct {
 	filemgr  *filestore.FileManager
 }
 
-
 var _ repo.Repo = (*FSRepo)(nil)
 
 // Open the FSRepo at path. Returns an error if the repo is not
@@ -400,8 +399,7 @@ func (r *FSRepo) openConfig() error {
 	if err != nil {
 		return err
 	}
-	conf := &config.Config{}
-	err = serialize.ReadConfigFile(configFilename, conf)
+	conf, err := serialize.Load(configFilename)
 	if err != nil {
 		return err
 	}

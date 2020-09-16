@@ -35,6 +35,7 @@ var PinCmd = &cmds.Command{
 		"ls":     listPinCmd,
 		"verify": verifyPinCmd,
 		"update": updatePinCmd,
+		"remote": remotePinCmd,
 	},
 }
 
@@ -499,6 +500,9 @@ func pinLsAll(req *cmds.Request, typeStr string, api coreiface.CoreAPI, emit fun
 	}
 
 	for p := range pins {
+		if p.Err() != nil {
+			return err
+		}
 		err = emit(&PinLsOutputWrapper{
 			PinLsObject: PinLsObject{
 				Type: p.Type(),
