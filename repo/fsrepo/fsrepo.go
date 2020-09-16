@@ -399,11 +399,12 @@ func (r *FSRepo) openConfig() error {
 	if err != nil {
 		return err
 	}
-	conf, err := serialize.Load(configFilename)
+	var conf config.Config
+	err = serialize.ReadConfigFile(configFilename, &conf)
 	if err != nil {
 		return err
 	}
-	r.config.IPFS = conf
+	r.config = &conf
 	return nil
 }
 
