@@ -1,4 +1,4 @@
-package link
+package linker
 
 import (
 	"github.com/glvd/bustlinker/core"

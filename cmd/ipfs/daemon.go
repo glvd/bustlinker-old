@@ -4,7 +4,6 @@ import (
 	"errors"
 	_ "expvar"
 	"fmt"
-
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -12,8 +11,6 @@ import (
 	"runtime"
 	"sort"
 	"sync"
-
-	"github.com/hashicorp/go-multierror"
 
 	version "github.com/glvd/bustlinker"
 	utilmain "github.com/glvd/bustlinker/cmd/ipfs/util"
@@ -25,17 +22,18 @@ import (
 	"github.com/glvd/bustlinker/core/corerepo"
 	"github.com/glvd/bustlinker/core/node/libp2p"
 	nodeMount "github.com/glvd/bustlinker/fuse/node"
-	"github.com/glvd/bustlinker/link"
+	"github.com/glvd/bustlinker/linker"
 	"github.com/glvd/bustlinker/repo/fsrepo"
 	migrate "github.com/glvd/bustlinker/repo/fsrepo/migrations"
+
+	"github.com/hashicorp/go-multierror"
+	cmds "github.com/ipfs/go-ipfs-cmds"
 	ipfsconfig "github.com/ipfs/go-ipfs-config"
 	cserial "github.com/ipfs/go-ipfs-config/serialize"
-	sockets "github.com/libp2p/go-socket-activation"
-
-	cmds "github.com/ipfs/go-ipfs-cmds"
 	mprome "github.com/ipfs/go-metrics-prometheus"
 	"github.com/ipfs/interface-go-ipfs-core/options"
 	"github.com/jbenet/goprocess"
+	sockets "github.com/libp2p/go-socket-activation"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr-net"
 	"github.com/prometheus/client_golang/prometheus"
@@ -467,7 +465,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 }
 
 func serveLink(req *cmds.Request, cctx *oldcmds.Context, node *core.IpfsNode) (<-chan error, error) {
-	lnk := link.New(req.Context, node)
+	lnk := linker.New(req.Context, node)
 	return nil, lnk.Start()
 }
 

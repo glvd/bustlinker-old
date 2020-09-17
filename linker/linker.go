@@ -1,4 +1,4 @@
-package link
+package linker
 
 import (
 	"bufio"
@@ -64,7 +64,7 @@ func (l *link) Syncing() {
 	}
 }
 
-func checkAddrExist(addrs []multiaddr.Multiaddr, addr multiaddr.Multiaddr) bool {
+func checkAddrIsExist(addrs []multiaddr.Multiaddr, addr multiaddr.Multiaddr) bool {
 	for i := range addrs {
 		if addr.Equal(addrs[i]) {
 			return true
@@ -80,7 +80,7 @@ func (l *link) newLinkPeersHandle() (protocol.ID, func(stream network.Stream)) {
 		defer stream.Close()
 		remoteID := stream.Conn().RemotePeer()
 
-		if !checkAddrExist(l.node.Peerstore.Addrs(remoteID), stream.Conn().RemoteMultiaddr()) {
+		if !checkAddrIsExist(l.node.Peerstore.Addrs(remoteID), stream.Conn().RemoteMultiaddr()) {
 			l.node.Peerstore.AddAddr(remoteID, stream.Conn().RemoteMultiaddr(), 7*24*time.Hour)
 		}
 
