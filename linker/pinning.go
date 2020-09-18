@@ -124,12 +124,12 @@ func (p *pinning) run() {
 
 func newPinning(node *core.IpfsNode) Pinning {
 	p := &pinning{
-		running:  atomic.NewBool(true),
+		running:  atomic.NewBool(false),
 		node:     node,
 		syncing:  &sync.Pool{},
 		pins:     make(map[string]bool),
 		pinsLock: &sync.RWMutex{},
 	}
-	go p.run()
+	p.Resume()
 	return p
 }
